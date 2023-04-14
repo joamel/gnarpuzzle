@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const mongoose = require("mongoose");
 
 const PORT1 = process.env.PORT1 || 3001
 const bodyParser = require('body-parser');
@@ -32,18 +31,8 @@ const io = new Server(server, {
 		origin: "http://localhost:3000",
 		methods: ["GET", "POST"],
 	},
-}).listen(server);
-
-
-//Import Routes
-// const postRoute = require('./routes/posts');
-const lobbyRoute = require('./routes/lobby')(io);
-
-//Middlewares (a function that executes when a route is being hit)
-app.use(bodyParser.json());
-// app.use('/posts', postRoute);
-app.use('/lobby', lobbyRoute);
-// app.use('/game', gameRoute);
+})
+// .listen(server);
 
 //ROUTES
 app.get('/', (req,res) => {
@@ -160,13 +149,6 @@ io.on("connection", (socket) => {
 		}
 	});
 });
-
-//Connect to DB
-mongoose.set("strictQuery", false);
-mongoose.connect(
-	process.env.DB_CONNECTION, () => 
-	console.log('Connected to DB!')
-);
 
 //How do we start listening to the server
 server.listen(3001);

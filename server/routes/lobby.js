@@ -1,87 +1,79 @@
 const express = require('express');
 // const res = require('express/lib/response');
+// const { updateOne } = require('../models/User');
+const router = express.Router();
+// const User = require('../models/User');
 
-function lobbyRoute(io) {
+// router.get('/', (req,res) => {
+//   res.send('We are in the lobby!');
+// })
 
-    const router = express.Router();
-    const User = require('../models/User');
+// router.post('/', (req,res) => {
+//   res.send('We are in the lobby!');
+// })
 
-    // router.get('/', (req,res) => {
-    //   res.send('We are in the lobby!');
-    // })
+//GETS BACK ALL THE USERS
+router.get('/', async (req,res) => {
+   try {
+       const users = await User.find();
+       res.json(users);
+   } catch (error) {
+       res.json({message: err});
+   }
+});
 
-    // router.post('/', (req,res) => {
-    //   res.send('We are in the lobby!');
-    // })
+//GET "SPECIFIC" USER
+router.get('/specific', (req,res) => {
+    res.send('We are on a specific user');
+});
 
-    //GETS BACK ALL THE USERS
-    router.get('/', async (req,res) => {
+router.post('/', async (req,res) => {
+    const user = new User({
+        // id: req.body.id,
+        username: req.body.username,
+        player: req.body.player,
+        room: req.body.room,
+        board: req.body.board,
+    });
     try {
-        const users = await User.find();
-        res.json(users);
-        io.to(user.room).emit("roomUsers", {
-            // room: user.room,
-            users: users,
-        });
-    } catch (error) {
-        res.json({message: err});
+      const savedUser = await user.save();
+      res.json(savedUser);
+    } catch (err) {
+        res.json({message: err });
     }
-    });
+});
 
-    //GET "SPECIFIC" USER
-    router.get('/specific', (req,res) => {
-        res.send('We are on a specific user');
-    });
+//GET SPECIFIC USER
+router.get('/:userId', async (req,res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        res.json(user);
+    } catch (err) {
+        res.json({message: err})
+    } 
+})
 
-    router.post('/', async (req,res) => {
-        const user = new User({
-            // id: req.body.id,
-            username: req.body.username,
-            player: req.body.player,
-            room: req.body.room,
-            board: req.body.board,
-        });
-        try {
-        const savedUser = await user.save();
-        res.json(savedUser);
-        } catch (err) {
-            res.json({message: err });
-        }
-    });
+//Delete a specific user
+router.delete('/:userId', async (req,res) => {
+    try {
+        const removedUser = await User.remove({_id: req.params.userId})
+        res.json(removedUser);
+     } catch (err) {
+        res.json({message: err})    
+    }
+});
 
-    //GET SPECIFIC USER
-    router.get('/:userId', async (req,res) => {
-        try {
-            const user = await User.findById(req.params.userId);
-            res.json(user);
-        } catch (err) {
-            res.json({message: err})
-        } 
-    })
+//Update a user
+router.patch('/:userId', async (req,res) => {
+    try {
+        const updateUser = await User.updateOne(
+            {_id: req.params.userId }, 
+            { $set: { title : req.body.title } }
+        );
+        res.json(updateUser);
+     } catch (err) {
+        res.json({message: err})    
+    }
+});
 
-    //Delete a specific user
-    router.delete('/:userId', async (req,res) => {
-        try {
-            const removedUser = await User.remove({_id: req.params.userId})
-            res.json(removedUser);
-        } catch (err) {
-            res.json({message: err})    
-        }
-    });
-
-    //Update a user
-    router.patch('/:userId', async (req,res) => {
-        try {
-            const updateUser = await User.updateOne(
-                {_id: req.params.userId }, 
-                { $set: { title : req.body.title } }
-            );
-            res.json(updateUser);
-        } catch (err) {
-            res.json({message: err})    
-        }
-    });
-    return router
-}
-
-module.exports = lobbyRoute;
+module.exports = router;
