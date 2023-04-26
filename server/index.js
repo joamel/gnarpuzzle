@@ -4,9 +4,10 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
-const PORT1 = process.env.PORT1 || 3001
-const bodyParser = require('body-parser');
+const PORT1 = process.env.PORT1 || 3001;
+const bodyParser = require("body-parser");
 
+const findWords = require("./utils/helper");
 const formatMessage = require("./utils/messages");
 const {
 	userJoin,
@@ -22,7 +23,7 @@ const app = express();
 app.use(cors());
 require("dotenv/config");
 
-
+const swedishDict = require("./files/swedish.json");
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -31,15 +32,33 @@ const io = new Server(server, {
 		origin: "http://localhost:3000",
 		methods: ["GET", "POST"],
 	},
-})
+});
 // .listen(server);
 
 //ROUTES
-app.get('/', (req,res) => {
-    res.send('We are home');
-})
+app.get("/", (req, res) => {
+	res.send("We are home");
+});
 
 const botName = "ChatCord Bot";
+
+let emitsReceived = 0;
+
+const generateWords = (board) => {
+	const words = findWords(board);
+	return words;
+};
+
+const getPoints = (words) => {
+	let correctWords = [];
+	words.map((word) => {
+		// console.log(word.word)
+		swedishDict.map((ord) => {
+			if (word.word.toUpperCase() === ord.toUpperCase()) correctWords.push(ord);
+		});
+	});
+	return correctWords;
+};
 
 // Listen to connections
 io.on("connection", (socket) => {
@@ -84,11 +103,11 @@ io.on("connection", (socket) => {
 		});
 	});
 
-	socket.on("whoClicked", () => {
-		const user = getCurrentUser(socket.id);
-		console.log("User clicking button", user);
-		if (user) io.to(user.room).emit("currentUser", { user });
-	});
+	// socket.on("whoClicked", () => {
+	// 	const user = getCurrentUser(socket.id);
+	// 	console.log("User clicking button", user);
+	// 	if (user) io.to(user.room).emit("currentUser", { user });
+	// });
 
 	// socket.on("nextPlayer", (player) => {
 	// 	const user = getCurrentUser(socket.id);
@@ -119,16 +138,29 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("updateGameState", (gameState) => {
+		emitsReceived++;
 		const user = getCurrentUser(socket.id);
-		if (user) {
-			// io.to(user.room).emit("currentUser", { user });
-			io.to(user.room).emit("updateGameState", gameState);
+		const users = getRoomUsers(user.room);
+		// @TODO: calculate score if gameOver is true and send back
+		if (gameState.gameOver) {
+			const words = generateWords(gameState.board);
+			console.log(words)
+			const correctWords = getPoints(words);
+			console.log(correctWords);
+		}
+		if (emitsReceived === users.length) {
+			if (user) {
+				// io.to(user.room).emit("currentUser", { user });
+				io.to(user.room).emit("updateGameState", gameState);
+			}
+			emitsReceived = 0;
 		}
 	});
 
 	socket.on("sendLetter", (data) => {
-		console.log("data", data);
-		socket.to(data.room).emit("receiveLetter", data.currentLetter);
+		const user = getCurrentUser(socket.id);
+		console.log(data);
+		io.to(user.room).emit("receiveLetter", data.currentLetter);
 	});
 
 	// Runs when client disconnects
