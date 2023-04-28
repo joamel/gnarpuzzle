@@ -4,7 +4,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
-const PORT1 = process.env.PORT1 || 3001;
+const port = process.env.PORT1 || 3001;
 const bodyParser = require("body-parser");
 
 const findWords = require("./utils/helper");
@@ -183,4 +183,4 @@ io.on("connection", (socket) => {
 });
 
 //How do we start listening to the server
-server.listen(PORT1);
+server.listen(port);
