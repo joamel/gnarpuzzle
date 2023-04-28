@@ -4,7 +4,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
-const port = process.env.PORT1 || 3001;
+const port = process.env.PORT || 3001;
 const bodyParser = require("body-parser");
 
 const findWords = require("./utils/helper");
