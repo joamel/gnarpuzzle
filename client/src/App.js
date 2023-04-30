@@ -1,8 +1,8 @@
 import "./App.css";
 // import io from "socket.io-client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Lobby from "./components/Lobby";
-import Nav from "./components/Nav";
+// import Nav from "./components/Nav";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material";
 import { getTheme } from "./themes/theme.ts";
@@ -16,10 +16,10 @@ let joinLobby = false;
 function App() {
 	// States
 	const [username, setUsername] = useState("");
-	const [users, setUsers] = useState("");
+	// const [users, setUsers] = useState("");
 	const [room, setRoom] = useState("");
-	const [message, setMessage] = useState("");
-	const [messageReceived, setMessageReceived] = useState("");
+	// const [message, setMessage] = useState("");
+	// const [messageReceived, setMessageReceived] = useState("");
 	
 	// const navigate = useNavigate();
 

@@ -6,7 +6,7 @@ import { Button, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import socket from "../utils/Socket";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import { findWords } from "../utils/helper";
 // const socket = io.connect("http://localhost:3001");
 
