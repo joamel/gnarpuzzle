@@ -3,16 +3,16 @@ import "../App.css";
 import { useEffect, useState } from "react";
 import Game from "./Game";
 import socket from "../utils/Socket";
-import { userJoin } from "../utils/users";
+// import { userJoin } from "../utils/users";
 // const socket = io.connect("http://localhost:3001");
 
 function Lobby(props) {
 	const { username, room } = props;
 	// States
 	// const [username, setUsername] = useState("");
-	const [user, setUser] = useState("");
+	// const [user, setUser] = useState("");
 	const [users, setUsers] = useState([]);
-  const [roomFull, setRoomFull] = useState(false);
+  // const [roomFull, setRoomFull] = useState(false);
 	const [gameStarted, setGameStarted] = useState(false);
 	const [message, setMessage] = useState("");
 	const [messageReceived, setMessageReceived] = useState("");
