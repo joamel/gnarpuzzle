@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import socket from "../utils/Socket";
 // import { io } from "socket.io-client";
-import { findWords } from "../utils/helper";
+// import { findWords } from "../utils/helper";
 // const socket = io.connect("http://localhost:3001");
 
 function Game({ roomCode, users, username }) {
@@ -68,7 +68,9 @@ function Game({ roomCode, users, username }) {
 	}, [setCurrentLetter]);
 
 	useEffect(() => {
-		socket.on("initGameState", ({ gameOver, round, turn, currentLetter }) => {
+		socket.on("initGameState", ({ gameOver, round, turn, currentLetter, room, currentUser }) => {
+			room && setRoom(room);
+			currentUser && setCurrentUser(currentUser);
 			setGameOver(gameOver);
 			setRound(round);
 			setTurn(turn);
@@ -108,10 +110,10 @@ function Game({ roomCode, users, username }) {
 		return nextTurn;
 	};
 
-	const generateWords = () => {
+	/* const generateWords = () => {
 		const words = findWords(board);
 		setWords(words);
-	};
+	};*/
 
 	const checkGameOver = (round) => {
 		if (round === totalRounds) {
@@ -152,12 +154,12 @@ function Game({ roomCode, users, username }) {
 		setShowChooseLetter(false);
 	};
 
-	const arrayChunk = (arr, n) => {
+	/* const arrayChunk = (arr, n) => {
 		const array = arr.slice();
 		const chunks = [];
 		while (array.length) chunks.push(array.splice(0, n));
 		return chunks;
-	};
+	}; */
 
 	const hasValue = (i, j) => {
 		if (board && board[i][j] !== "") return true;
@@ -221,6 +223,7 @@ function Game({ roomCode, users, username }) {
 			{/* </Grid> */}
 			{/* </Box> */}
 			{gameOver && <p> GAME OVER! </p>}
+			{words}
 		</Box>
 	);
 }

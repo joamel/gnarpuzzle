@@ -10,7 +10,7 @@ import { getTheme } from "./themes/theme.ts";
 // import socket from "./utils/Socket";
 
 // const socket = io.connect("http://localhost:3001");
-let joinLobby = false;
+// let joinLobby = false;
 
 
 function App() {
