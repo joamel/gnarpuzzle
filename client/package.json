@@ -23,7 +23,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "serve -s build -l $PORT",
+    "start-dev": "react-scripts start",
     "build": "react-scripts build",
     "build:production": "env-cmd -f .env.production npm run build",
     "test": "react-scripts test",
