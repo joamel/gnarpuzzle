@@ -29,7 +29,8 @@ const server = http.createServer(app);
 const io = new Server(server, {
 	// avoid CORS-errors
 	cors: {
-		origin: "http://localhost:3000",
+		// origin: "http://localhost:3000",
+		origin: "https://peppy-heliotrope-0f3470.netlify.app/lobby",
 		methods: ["GET", "POST"],
 	},
 });
