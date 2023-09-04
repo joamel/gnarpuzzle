@@ -9,7 +9,8 @@ const cors = require("cors");
 const port = process.env.PORT1 || 3001;
 const bodyParser = require("body-parser");
 
-const findWords = require("./utils/helper");
+const { getPossibleWords, getPoints } = require("./utils/helper");
+
 const formatMessage = require("./utils/messages");
 const {
 	userJoin,
@@ -47,22 +48,6 @@ const botName = "ChatCord Bot";
 
 let emitsReceived = 0;
 
-const generateWords = (board) => {
-	const words = findWords(board);
-	return words;
-};
-
-const getPoints = (words) => {
-	let correctWords = [];
-	words.map((word) => {
-		// console.log(word.word)
-		swedishDict.map((ord) => {
-			if (word.word.toUpperCase() === ord.toUpperCase()) correctWords.push(ord);
-		});
-	});
-	return correctWords;
-};
-
 // Listen to connections
 io.on("connection", (socket) => {
 	// console.log(`User connected: ${socket.id}`);
@@ -92,9 +77,6 @@ io.on("connection", (socket) => {
 			users: getRoomUsers(user.room),
 		});
 
-		// // Send current user info
-		// io.to(user.room).emit("currentUser", { user });
-
 		// Listen for chatMessage
 		socket.on("chatMessage", (msg) => {
 			const user = getCurrentUser(socket.id);
@@ -105,20 +87,6 @@ io.on("connection", (socket) => {
 			);
 		});
 	});
-
-	// socket.on("whoClicked", () => {
-	// 	const user = getCurrentUser(socket.id);
-	// 	console.log("User clicking button", user);
-	// 	if (user) io.to(user.room).emit("currentUser", { user });
-	// });
-
-	// socket.on("nextPlayer", (player) => {
-	// 	const user = getCurrentUser(socket.id);
-	// 	const nextPlayer = getNextPlayerInRoom(user.room, player);
-	// 	console.log("next player", nextPlayer.username);
-	// 	if (user)
-	// 		io.to(nextPlayer.id).emit("nextPlayer", { showChooseLetter: true });
-	// });
 
 	socket.on("sendMessage", (data) => {
 		// send to everyone but me
@@ -144,16 +112,17 @@ io.on("connection", (socket) => {
 		emitsReceived++;
 		const user = getCurrentUser(socket.id);
 		const users = getRoomUsers(user.room);
-		// @TODO: calculate score if gameOver is true and send back
 		if (gameState.gameOver) {
-			const words = generateWords(gameState.board);
-			console.log(words)
-			const correctWords = getPoints(words);
-			console.log(correctWords);
+			const possibleWords = getPossibleWords(gameState.board);
+			const [correctWords, points] = getPoints(possibleWords);
+			console.log('correctWords', correctWords);
+			console.log('totalPoints', points);
+			let totalScore = points.reduce((a, b) => a + b, 0);
+			gameState.words = correctWords;
+			gameState.points = totalScore;
 		}
 		if (emitsReceived === users.length) {
-			if (user) {
-				// io.to(user.room).emit("currentUser", { user });
+			if (user) {				
 				io.to(user.room).emit("updateGameState", gameState);
 			}
 			emitsReceived = 0;
