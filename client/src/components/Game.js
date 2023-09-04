@@ -1,10 +1,9 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import { Button, Typography } from "@mui/material";
+import Board from "./Board";
 // import style from "./Game.css";
 // import io from "socket.io-client";
 import { useEffect, useState } from "react";
-import { useTheme } from "@mui/material/styles";
 import socket from "../utils/Socket";
 // import { io } from "socket.io-client";
 // import { findWords } from "../utils/helper";
@@ -154,20 +153,6 @@ function Game({ roomCode, users, username }) {
 		setShowChooseLetter(false);
 	};
 
-	/* const arrayChunk = (arr, n) => {
-		const array = arr.slice();
-		const chunks = [];
-		while (array.length) chunks.push(array.splice(0, n));
-		return chunks;
-	}; */
-
-	const hasValue = (i, j) => {
-		if (board && board[i][j] !== "") return true;
-		return false;
-	};
-
-	const theme = useTheme();
-
 	return (
 		// 1. Spelare på tur får välja bokstav som skickas till servern
 		// 2. servern skickar bokstaven till alla spelare
@@ -175,40 +160,7 @@ function Game({ roomCode, users, username }) {
 		// 4. ny runda och väljande spelare byts till nästa spelare på tur
 
 		<Box>
-			{/* <Box 	sx={{ flexGrow: 1 }}> */}
-			{/* <Grid container spacing={`${24}px`}> */}
-			{/* {arrayChunk([...board], 5).map((row, i) => ( */}
-			{board.map((row, i) => (
-				<Box
-					key={i}
-					sx={{
-						display: "flex",
-						flexDirection: "row",
-						alignItems: "center",
-						// justifyContent: "space-between",
-					}}
-				>
-					{row.map((col, j) => (
-						<Button
-							key={j}
-							sx={{
-								display: "flex",
-								position: "relative",
-								margin: "1px",
-								cursor: "pointer",
-								color: theme.palette.action.active,
-								width: "5em",
-								height: "5em",
-							}}
-							variant={"contained"}
-							disabled={hasValue(i, j) ? true : boardDisabled}
-							onClick={() => playRound(i, j)}
-						>
-							<Typography variant="bigText">{board[i][j]}</Typography>
-						</Button>
-					))}
-				</Box>
-			))}
+			<Board board={board} boardDisabled={boardDisabled} playRound={playRound} />
 			{showEndRound && <button onClick={endCurrentRound}>Done</button>}
 			{showChooseLetter && (
 				<input
