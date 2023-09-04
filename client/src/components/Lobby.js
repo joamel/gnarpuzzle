@@ -63,6 +63,7 @@ function Lobby(props) {
 
 	const sendChatMessage = () => {
 		socket.emit("chatMessage", { message, room });
+		setMessage("");
 	};
 
 	return (
@@ -78,12 +79,13 @@ function Lobby(props) {
 			<p>{`Message: ${messageReceived}`}</p>
 			<input
 				placeholder="Message..."
+				value={message}
 				onChange={(event) => {
 					setMessage(event.target.value);
 				}}
 			/>
 			<button onClick={sendChatMessage}>Send Message</button>
-			{!gameStarted && startGame && <button onClick={startGame}>Start Game</button>}
+			{!gameStarted && <button onClick={startGame}>Start Game</button>}
 			{gameStarted && <Game roomCode={room} users={users} username={username} />}
 		</div>
 	);

@@ -1,7 +1,7 @@
 import { Theme } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { SxProps as MuiSxProps } from '@mui/material';
-import { scrollbarTheme } from './scrollbarTheme.ts';
+import { scrollbarTheme } from '../themes/scrollbarTheme.ts';
 
 declare module '@mui/material/styles' {
   interface TypographyVariants {

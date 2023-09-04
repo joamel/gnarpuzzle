@@ -24,23 +24,16 @@ function Game({ roomCode, users, username }) {
 	const [gameOver, setGameOver] = useState(false);
 	const [round, setRound] = useState(0);
 	const [words, setWords] = useState([]);
+	const [points, setPoints] = useState(0);
 	const [turn, setTurn] = useState([]);
+	const dim = 3;
 	const [board, setBoard] = useState(
-		[...Array(5)].map((e) => Array(5).fill(""))
+		[...Array(dim)].map((e) => Array(dim).fill(""))
 	);
 	const [tempChoice, setTempChoice] = useState([null, null]);
 	const [currentLetter, setCurrentLetter] = useState("");
 
-	// const totalRounds = users.length * users.length;
-	const totalRounds = 9;
-	// console.log(`This is ${username}'s view`);
-	// useEffect(() => {
-
-	// 	// socket.on("sendBoard", (user, board) => {
-	// 	//   console.log(user)
-	// 	// 	setBoard(board);
-	// 	// });
-	// }, [currentUser]);
+	const totalRounds = dim*dim;
 
 	// runs once on component mount
 	useEffect(() => {
@@ -67,9 +60,7 @@ function Game({ roomCode, users, username }) {
 	}, [setCurrentLetter]);
 
 	useEffect(() => {
-		socket.on("initGameState", ({ gameOver, round, turn, currentLetter, room, currentUser }) => {
-			room && setRoom(room);
-			currentUser && setCurrentUser(currentUser);
+		socket.on("initGameState", ({ gameOver, round, turn, currentLetter }) => {
 			setGameOver(gameOver);
 			setRound(round);
 			setTurn(turn);
@@ -79,10 +70,11 @@ function Game({ roomCode, users, username }) {
 
 		socket.on(
 			"updateGameState",
-			({ gameOver, round, words, turn, currentLetter }) => {
+			({ gameOver, round, words, points, turn, currentLetter }) => {
 				gameOver && setGameOver(gameOver);
 				round && setRound(round);
 				words && setWords(words);
+				points && setPoints(points);
 				turn && setTurn(turn);
 				currentLetter && setCurrentLetter(currentLetter);
 				if (turn === currentUser.player && !gameOver) setShowChooseLetter(true);
@@ -171,11 +163,10 @@ function Game({ roomCode, users, username }) {
 				/>
 			)}
 			{showChooseLetter && <button onClick={sendLetter}>Send Letter</button>}
-			{!showChooseLetter && <p> Letter: {currentLetter} </p>}
-			{/* </Grid> */}
-			{/* </Box> */}
+			{!showChooseLetter && !gameOver && <p> Letter: {currentLetter} </p>}
 			{gameOver && <p> GAME OVER! </p>}
 			{words}
+			<div>Final score {points}</div>
 		</Box>
 	);
 }
