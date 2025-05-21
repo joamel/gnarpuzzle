@@ -6,6 +6,7 @@ import Lobby from "./components/Lobby";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material";
 import { getTheme } from "./themes/theme.ts";
+// import Tabs from "./components/Tabs.jsx";
 
 // import socket from "./utils/Socket";
 
@@ -62,6 +63,7 @@ function App() {
 				<Routes>
 					<Route path="/" element={<Home setUsername={(username) => setUsername(username)} setRoom={(room) => setRoom(room)} />} />
 					<Route path="/lobby" element={<Lobby username={username} room={room} />} />
+					<Route path="/play" element={<Lobby username={username} room={room} />} />
 				</Routes>
 				
 			</Router>
@@ -85,6 +87,7 @@ const Home = ({setUsername, setRoom}) => {
 					}}
 				/>
 			<h2>Join Room</h2>
+			<button onClick={() => {navigate('/tabs')}}>Play</button>
 			<button onClick={() => {setRoom(1); navigate('/lobby')}}>Join Room 1</button>
 			<button onClick={() => {setRoom(2); navigate('/lobby')}}>Join Room 2</button>
 			<button onClick={() => {setRoom(3); navigate('/lobby')}}>Join Room 3</button>

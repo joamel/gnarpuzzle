@@ -4,7 +4,7 @@ import Board from "./Board";
 // import style from "./Game.css";
 // import io from "socket.io-client";
 import { useEffect, useState } from "react";
-import socket from "../utils/Socket";
+import socket from "../utils/socket";
 // import { io } from "socket.io-client";
 // import { findWords } from "../utils/helper";
 // const socket = io.connect("http://localhost:3001");

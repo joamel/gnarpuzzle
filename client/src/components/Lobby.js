@@ -2,7 +2,7 @@ import "../App.css";
 // import io from "socket.io-client";
 import { useEffect, useState } from "react";
 import Game from "./Game";
-import socket from "../utils/Socket";
+import socket from "../utils/socket";
 // import { userJoin } from "../utils/users";
 // const socket = io.connect("http://localhost:3001");
 
@@ -71,8 +71,7 @@ function Lobby(props) {
 			<h1>Lobby</h1>
 			<p>{`Room: ${room}`}</p>
 			<ul>
-				{users &&
-					users.map((user) => {
+				{users?.map((user) => {
 						return <li key={user.id}>{user.username}</li>;
 					})}
 			</ul>

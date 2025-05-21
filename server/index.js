@@ -155,4 +155,6 @@ io.on("connection", (socket) => {
 });
 
 //How do we start listening to the server
-server.listen(port);
+server.listen(port, () => {
+	console.log(`Server listens to port ${port}`);
+});
