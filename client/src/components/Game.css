@@ -1,0 +1,100 @@
+.game-container {
+    text-align: center;
+    padding: 2rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
+    background-attachment: fixed;
+}
+
+.game-info {
+    margin-bottom: 1rem;
+}
+
+.done-button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.done-button:hover {
+    background-color: #218838;
+}
+
+.letter-input-container {
+    margin-top: 1rem;
+}
+
+.letter-input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-right: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.send-letter-button {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.send-letter-button:hover {
+    background-color: #0056b3;
+}
+
+.current-letter-display {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+}
+
+.alphabet-container {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alphabet-letter {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #ff9800, #f57c00);
+  color: white;
+  font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 15px rgba(245, 124, 0, 0.4);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.alphabet-letter:hover {
+  background: linear-gradient(145deg, #ffd54f, #ffc107);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(255, 193, 7, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}

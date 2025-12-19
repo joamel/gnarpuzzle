@@ -1,0 +1,97 @@
+/* Board component styling */
+.board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, #87ceeb 0%, #4fc3f7 50%, #29b6f6 100%);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(41, 182, 246, 0.3);
+  margin: 1rem auto;
+  width: fit-content;
+}
+
+.board-row {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+}
+
+.board-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0;
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Arial Black', 'Helvetica Bold', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+.board-cell.active {
+  background: linear-gradient(145deg, #ffcc80, #ffb74d);
+  color: #2c3e50;
+  box-shadow: 
+    0 4px 15px rgba(255, 183, 77, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.board-cell.active:hover {
+  background: linear-gradient(145deg, #ffd54f, #ffc107);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(255, 193, 7, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.board-cell.disabled {
+  background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+  color: #64b5f6;
+  cursor: not-allowed;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.board-cell.filled {
+  background: linear-gradient(145deg, #ff9800, #f57c00);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 4px 15px rgba(245, 124, 0, 0.4);
+  animation: fillCell 0.3s ease-out;
+}
+
+.board-cell-letter {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fillCell {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
