@@ -5,7 +5,7 @@ import "./Game.css";
 import { useEffect, useState } from "react";
 import socket from "../utils/socket";
 import Board from "./Board.jsx";
-import GameOverModal from "./GameOverModal.jsx";
+import GameResults from "./GameResults.jsx";
 // import { io } from "socket.io-client";
 // import { findWords } from "../utils/helper";
 // const socket = io.connect("http://localhost:3001");
@@ -37,6 +37,7 @@ function Game({ roomCode, users, username }) {
 	const [points, setPoints] = useState(0);
 	const [leaderboard, setLeaderboard] = useState([]);
 	const [turn, setTurn] = useState([]);
+	const [allPlayerData, setAllPlayerData] = useState({});
 	const dim = 2;
 	const [board, setBoard] = useState(
 		[...Array(dim)].map((e) => Array(dim).fill(""))
@@ -48,11 +49,17 @@ function Game({ roomCode, users, username }) {
 
 	// runs once on component mount
 	useEffect(() => {
+		console.log('=== GAME COMPONENT MOUNTED ===');
+		console.log('currentUser:', currentUser);
+		console.log('users:', users);
+		console.log('users detailed:', users.map((u, i) => `[${i}] ${u.username} (player: ${u.player})`));
+		console.log('username:', username);
+		
 		setBoardDisabled(true);
 		// Bara Player 1 initierar spelet för att undvika konflikter
 		if (currentUser && currentUser.player === 1) {
 			const randomStartPlayerIndex = Math.floor(Math.random() * users.length);
-			const randomStartPlayer = users[randomStartPlayerIndex].username; // Använd username istället för nummer
+			const randomStartPlayer = users[randomStartPlayerIndex].username;
 			
 			// Skapa turnOrder med alla spelares användarnamn
 			const turnOrder = users.map(user => user.username);
@@ -60,13 +67,11 @@ function Game({ roomCode, users, username }) {
 			socket.emit("initGameState", {
 				gameOver: false,
 				round: 1,
-				turn: randomStartPlayer, // Slumpmässig startspelare (användarnamn)
+				turn: randomStartPlayer,
 				currentLetter: "",
-				turnOrder: turnOrder, // Lägg till turnOrder
-				currentTurnIndex: randomStartPlayerIndex // Index för vem som startar
+				turnOrder: turnOrder,
+				currentTurnIndex: randomStartPlayerIndex
 			});
-		} else {
-
 		}
 	}, []);
 
@@ -132,6 +137,8 @@ function Game({ roomCode, users, username }) {
 
 		// Lyssna på nextRound för att uppdatera spelstate när alla spelare är klara
 		socket.on('nextRound', (newGameState) => {
+			console.log('=== NEXT ROUND EVENT RECEIVED ===');
+			console.log('New game state:', newGameState);
 
 			setRound(newGameState.round);
 			setTurn(newGameState.turn);
@@ -159,16 +166,20 @@ function Game({ roomCode, users, username }) {
 			setShowEndRound(false);
 		});
 
-		// Lyssna på personliga spelresultat
+		// Listen for personal game results
 		socket.on('gameResults', (results) => {
-
 			setGameOver(true);
 			setWords(results.words);
 			setPoints(results.points);
 			setLeaderboard(results.leaderboard);
 		});
 
-		// Lyssna på när någon lämnar under spelet (bara en spelare kvar)
+		// Listen for all player results for comparison
+		socket.on('allPlayerResults', (playerData) => {
+			setAllPlayerData(playerData);
+		});
+
+		// Listen when someone leaves during the game (only one player left)
 		socket.on('playerLeft', (data) => {
 			alert(`${data.username} lämnade spelet. Du vinner automatiskt!`);
 			setGameOver(true);
@@ -202,6 +213,7 @@ function Game({ roomCode, users, username }) {
 			socket.off('updateGameState');
 			socket.off('nextRound');
 			socket.off('gameResults');
+			socket.off('allPlayerResults');
 			socket.off('playerLeft');
 			socket.off('forceUpdateTurn');
 		};
@@ -228,9 +240,11 @@ function Game({ roomCode, users, username }) {
 	// };*/
 
 	const checkGameOver = (round) => {
-		if (round === totalRounds) {
+		console.log(`Checking game over: round=${round}, totalRounds=${totalRounds}`);
+		
+		if (round > totalRounds) {
+			console.log('=== GAME OVER! All rounds completed ===');
 			setShowChooseLetter(false);
-			// generateWords();
 			return true;
 		}
 		return false;
@@ -241,11 +255,12 @@ function Game({ roomCode, users, username }) {
 		setShowEndRound(false);
 		setBoardDisabled(true);
 		
+		const newRound = round + 1;
 
 		socket.emit("playerDone", {
-			gameOver: checkGameOver(round),
+			gameOver: checkGameOver(newRound),
 			board,
-			round: round + 1,
+			round: newRound,
 			// Låt servern bestämma nästa tur istället
 			currentLetter,
 		});
@@ -283,54 +298,57 @@ function Game({ roomCode, users, username }) {
 	};
 
 	return (
-		<div className="game-container">
-			<div className="game-info">
-				<p><strong>Deltagare: {users.length} spelare</strong></p>
-				<p><strong>Round: {round} / {totalRounds}</strong></p>
-				{!gameOver && <p>Current Turn: {typeof turn === 'number' ? `Player ${turn}` : turn}</p>}
+		<div className={`game-container ${gameOver ? 'game-with-results' : ''}`}>
+			<div className="game-content">
+				<div className="game-info">
+					<p><strong>Deltagare: {users.length} spelare</strong></p>
+					<p><strong>Round: {round} / {totalRounds}</strong></p>
+					{!gameOver && <p>Current Turn: {typeof turn === 'number' ? `Player ${turn}` : turn}</p>}
+				</div>
+				
+				<Board board={board} boardDisabled={boardDisabled} playRound={playRound} />
+				
+				{showEndRound && (
+					<button 
+						onClick={endCurrentRound}
+						className="done-button"
+					>
+						Done
+					</button>
+				)}
+				
+				{showChooseLetter && (
+					<div className="alphabet-container">
+						{Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ').map((letter) => (
+							<button
+								key={letter}
+								className="alphabet-letter"
+								onClick={() => {
+									setCurrentLetter(letter);
+									sendLetter(letter);
+								}}
+							>
+								{letter}
+							</button>
+						))}
+					</div>
+				)}
+				
+				{!showChooseLetter && !gameOver && currentLetter && (
+					<p className="current-letter-display">
+						<strong>Current Letter: {currentLetter}</strong>
+					</p>
+				)}
 			</div>
 			
-			<Board board={board} boardDisabled={boardDisabled} playRound={playRound} />
-			
-			{showEndRound && (
-				<button 
-					onClick={endCurrentRound}
-					className="done-button"
-				>
-					Done
-				</button>
-			)}
-			
-			{showChooseLetter && (
-				<div className="alphabet-container">
-					{Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ').map((letter) => (
-						<button
-							key={letter}
-							className="alphabet-letter"
-							onClick={() => {
-								setCurrentLetter(letter);
-								sendLetter(letter);
-							}}
-						>
-							{letter}
-						</button>
-					))}
-				</div>
-			)}
-			
-			{!showChooseLetter && !gameOver && currentLetter && (
-				<p className="current-letter-display">
-					<strong>Current Letter: {currentLetter}</strong>
-				</p>
-			)}
-			
 			{gameOver && (
-				<GameOverModal 
+				<GameResults 
 					words={words}
 					points={points}
 					leaderboard={leaderboard}
 					username={username}
 					users={users}
+					allPlayerData={allPlayerData}
 				/>
 			)}
 		</div>

@@ -5,7 +5,7 @@
 
   color-scheme: light;
   color: #2c3e50;
-  background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
+  background: #667eea;
   background-attachment: fixed;
   min-height: 100vh;
 
@@ -27,11 +27,9 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-width: 320px;
+  background: #667eea;
   min-height: 100vh;
-  background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
-  background-attachment: fixed;
 }
 
 h1 {

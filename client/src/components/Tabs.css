@@ -1,53 +1,166 @@
-.welcome-container {
+/* Full width layout override */
+.login-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 4rem;
+    justify-content: center;
+    min-height: 100vh;
+    background: #667eea;
+    padding: 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
-.username-input {
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-}
-
-.join-button {
-    padding: 0.5rem 1rem;
-}
-
-.lobby-header {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 10;
-}
-
-.username-display {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1rem;
-    background-color: #f0f8ff;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-
-.logout-button-small {
-    background: rgba(0, 123, 255, 0.8);
+.login-welcome {
+    text-align: center;
+    margin-bottom: 3rem;
     color: white;
-    border: 1px solid rgba(0, 123, 255, 0.6);
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.logout-button-small:hover {
-    background: rgba(0, 123, 255, 1);
-    border-color: rgba(0, 123, 255, 0.8);
+.welcome-logo {
+    margin-bottom: 2rem;
+    transform: scale(2);
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
 }
+
+.welcome-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #667eea 0%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 
+        0 25px 80px rgba(0, 0, 0, 0.1),
+        0 10px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: slideInUp 1s ease-out;
+    transform: translateY(0);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 700;
+    color: #19547b;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    padding: 1rem 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2), 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-group input:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.login-button {
+    padding: 1.25rem;
+    background: #19547b;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    margin-top: 1rem;
+    box-shadow: 0 8px 25px rgba(25, 84, 123, 0.3);
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+.login-button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(25, 84, 123, 0.4);
+    background: #0f3554;
+    scale: 1.02;
+}
+
+.login-button:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* New layout styles */
+.room-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  background: #667eea;
+}
+
+.content-wrapper {
+  display: flex;
+  height: calc(100vh - 80px); /* Account for header height */
+  position: relative;
+}
+
+.game-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  margin-right: 300px; /* Match chat sidebar width + gap */
+}
+
+.chat-sidebar {
+  position: fixed;
+  top: 80px; /* Below the header */
+  right: 20px;
+  width: 280px;
+  height: calc(100vh - 100px);
+  z-index: 100;
+}
+
+
 
 .room-selection {
     text-align: center;
@@ -57,6 +170,11 @@
 .room-selection h2 {
     margin-bottom: 2rem;
     color: #333;
+}
+
+/* Room component specific layout */
+.game-section .room-container {
+  margin-right: -1rem; /* Extend Room to near chat sidebar */
 }
 
 .room-buttons {
@@ -87,34 +205,14 @@
     box-shadow: 0 6px 16px rgba(0, 123, 255, 0.2);
 }
 
-.room-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-top: 60px; /* Ge plats för lobby-header */
-}
-
-.room-info h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.leave-room-button {
-    background: rgba(220, 53, 69, 0.8);
-    color: white;
-    border: 1px solid rgba(220, 53, 69, 0.6);
-    padding: 0.5rem 1rem;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.leave-room-button:hover {
-    background: rgba(220, 53, 69, 1);
-    border-color: rgba(220, 53, 69, 0.8);
+/* Animations */
+@keyframes slideInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

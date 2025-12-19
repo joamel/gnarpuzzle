@@ -4,6 +4,29 @@
     min-height: 100vh;
     background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
     background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-container.game-with-results {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-container.game-with-results .game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .game-info {

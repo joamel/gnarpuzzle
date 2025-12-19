@@ -8,6 +8,9 @@ import { useChatQuery } from '../api/chat-query';
 import { useParticipantsQuery } from '../api/participants-query';
 import Game from './Game';
 import Room from './Room';
+import Chat from './Chat';
+import Logo from './Logo';
+import Header from './Header';
 import socket from '../utils/socket';
 
 const Tabs = () => {
@@ -57,27 +60,50 @@ const Tabs = () => {
   // Visa lobby/namninput om användaren inte har joinat än
   if (!hasJoined) {
     return (
-      <div className="welcome-container">
-        <h2>Välkommen till Gnarp!</h2>
-        <label htmlFor="username-input">Ange ditt namn:</label>
-        <input
-          id="username-input"
-          type="text"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          className="username-input"
-        />
-        <button
-          disabled={!username.trim()}
-          onClick={() => {
-            localStorage.setItem('gnarp-username', username);
-            localStorage.setItem('gnarp-hasJoined', 'true');
-            setHasJoined(true);
-          }}
-          className="join-button"
-        >
-          Gå vidare till rummet
-        </button>
+      <div className="login-container">
+        <div className="login-welcome">
+          <div className="welcome-logo">
+            <Logo size="large" />
+          </div>
+        </div>
+        <div className="login-card">
+          <form className="login-form" onSubmit={(e) => {
+            e.preventDefault();
+            if (username.trim()) {
+              localStorage.setItem('gnarp-username', username);
+              localStorage.setItem('gnarp-hasJoined', 'true');
+              setHasJoined(true);
+            }
+          }}>
+            <div className="form-group">
+              <label htmlFor="username">Användarnamn</label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="Ange ditt namn"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Lösenord</label>
+              <input
+                id="password"
+                type="password"
+                placeholder="(Valfritt för nu)"
+                disabled
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={!username.trim()}
+              className="login-button"
+            >
+              Logga in
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
@@ -85,49 +111,32 @@ const Tabs = () => {
   if (currentRoom) {
     // Visa aktuellt rum med lämna-knapp
     return (
-      <>
-        <div className="lobby-header">
-          <div className="username-display">
-            👤 {username}
-            <button className="logout-button-small" onClick={handleLogout}>
-              Logga ut
-            </button>
+      <div className="room-layout">
+        <Header 
+          username={username} 
+          onLogout={handleLogout}
+          showRoomBackButton={true}
+          onBackToRooms={handleLeaveRoom}
+        />
+        <div className="content-wrapper">
+          <div className="game-section">
+            {currentRoom === "room1" && <Room username={username} users={participants?.["room1"] ?? []} roomId="room1" showChat={false} />}
+            {currentRoom === "room2" && <Room username={username} users={participants?.["room2"] ?? []} roomId="room2" showChat={false} />}
+            {currentRoom === "room3" && <Room username={username} users={participants?.["room3"] ?? []} roomId="room3" showChat={false} />}
+            {currentRoom === "room4" && <Room username={username} users={participants?.["room4"] ?? []} roomId="room4" showChat={false} />}
+          </div>
+          <div className="chat-sidebar">
+            <Chat username={username} roomId={currentRoom} />
           </div>
         </div>
-        <div className="room-header">
-          <div className="room-info">
-            <h2>
-              {currentRoom === 'room1' && '🏠 Rum 1'}
-              {currentRoom === 'room2' && '🌟 Rum 2'}
-              {currentRoom === 'room3' && '🚀 Rum 3'}
-              {currentRoom === 'room4' && '💎 Rum 4'}
-            </h2>
-          </div>
-          <div className="room-controls">
-            <button className="leave-room-button" onClick={handleLeaveRoom}>
-              ← Lämna rum
-            </button>
-          </div>
-        </div>
-        {currentRoom === "room1" && <Room username={username} users={participants?.["room1"] ?? []} roomId="room1" />}
-        {currentRoom === "room2" && <Room username={username} users={participants?.["room2"] ?? []} roomId="room2" />}
-        {currentRoom === "room3" && <Room username={username} users={participants?.["room3"] ?? []} roomId="room3" />}
-        {currentRoom === "room4" && <Room username={username} users={participants?.["room4"] ?? []} roomId="room4" />}
-      </>
+      </div>
     );
   }
 
   // Visa rumslista när inte i något rum
   return (
     <>
-      <div className="lobby-header">
-        <div className="username-display">
-          👤 {username}
-          <button className="logout-button-small" onClick={handleLogout}>
-            Logga ut
-          </button>
-        </div>
-      </div>
+      <Header username={username} onLogout={handleLogout} />
       <div className="room-selection">
         <h2>Välj rum att gå med i:</h2>
         <div className="room-buttons">

@@ -2,8 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "./query-client";
 import { queryKey } from "./participants-query";
 
-const path = "http://localhost:3001/participants"
-
 export const useParticipantsMutation = () => {
 	return useMutation({
 		onMutate: (participant) => {
@@ -21,6 +19,8 @@ export const useParticipantsMutation = () => {
 			});
 		},
 		mutationFn: async (body) => {
+			const { roomId } = body;
+			const path = `http://localhost:3001/participants/${roomId}`;
 
           const response = await fetch(path, {
             method: "POST",
