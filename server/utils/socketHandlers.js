@@ -468,6 +468,52 @@ const handleStartGame = (socket, io) => {
     });
 };
 
+const handleClientReconnected = (socket, io) => {
+    socket.on("clientReconnected", ({ username }) => {
+        console.log(`=== CLIENT RECONNECTED: ${username} ===`);
+        
+        // Hitta och ta bort användaren från alla rum
+        const roomsToCheck = ['room1', 'room2', 'room3', 'room4'];
+        
+        roomsToCheck.forEach(roomId => {
+            // Ta bort från participants
+            const participantsStorage = getParticipantsStorage();
+            if (participantsStorage[roomId]) {
+                const initialCount = participantsStorage[roomId].length;
+                participantsStorage[roomId] = participantsStorage[roomId].filter(p => p !== username);
+                const afterCount = participantsStorage[roomId].length;
+                
+                if (initialCount !== afterCount) {
+                    console.log(`Removed ${username} from ${roomId} participants (${initialCount} -> ${afterCount})`);
+                    // Meddela andra i rummet
+                    io.to(roomId).emit('participants', participantsStorage[roomId]);
+                }
+            }
+            
+            // Ta bort från user state
+            const roomUsers = getRoomUsers(roomId);
+            roomUsers.forEach(user => {
+                if (user.username === username) {
+                    userLeave(user.id);
+                    console.log(`Removed user ${username} from room ${roomId} user state`);
+                }
+            });
+            
+            // Ta bort från game state om det finns
+            const gameStateData = getGameState(roomId);
+            if (gameStateData && gameStateData.gameState && gameStateData.gameState.turnOrder) {
+                if (gameStateData.gameState.turnOrder.includes(username)) {
+                    removePlayerFromGame(roomId, username);
+                    console.log(`Removed ${username} from ${roomId} game state`);
+                }
+            }
+        });
+        
+        console.log(`Cleanup completed for ${username}`);
+        socket.emit('cleanupComplete');
+    });
+};
+
 const handleDisconnect = (socket, io) => {
     socket.on("disconnect", () => {
         const user = userLeave(socket.id);
@@ -490,5 +536,6 @@ module.exports = {
     handleNextRound,
     handleRequestResults,
     handleLeaveRoom,
-    handleDisconnect
+    handleDisconnect,
+    handleClientReconnected
 };

@@ -20,7 +20,8 @@ const {
 	handleNextRound,
 	handleRequestResults,
 	handleLeaveRoom,
-	handleDisconnect
+	handleDisconnect,
+	handleClientReconnected
 } = require('./utils/socketHandlers');
 
 const port = 3001;
@@ -70,6 +71,7 @@ io.on("connection", (socket) => {
 	handleRequestResults(socket, io);
 	handleLeaveRoom(socket, io);
 	handleDisconnect(socket, io);
+	handleClientReconnected(socket, io);
 });
 
 server.listen(port, () => {

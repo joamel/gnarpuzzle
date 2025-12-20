@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Tabs.css';
 import useSocketQuery from '../api/useSocketQuery';
 import { useChatMutation } from '../api/chat-mutation';
@@ -18,6 +18,37 @@ const Tabs = () => {
   const [username, setUsername] = useState(() => localStorage.getItem('gnarp-username') || "");
   const [hasJoined, setHasJoined] = useState(() => localStorage.getItem('gnarp-hasJoined') === 'true');
   const [currentRoom, setCurrentRoom] = useState(null);
+  const [isReconnecting, setIsReconnecting] = useState(true);
+
+  // Validera server-state vid uppstart
+  useEffect(() => {
+    if (hasJoined && username) {
+      console.log('=== VALIDATING SERVER STATE ON STARTUP ===');
+      
+      // Sätt en timeout som säkerhet ifall servern inte svarar
+      const fallbackTimeout = setTimeout(() => {
+        console.log('Timeout reached, assuming cleanup is done');
+        setIsReconnecting(false);
+      }, 2000);
+      
+      // Lyssna på bekräftelse från servern
+      const handleCleanupComplete = () => {
+        console.log('Server cleanup completed');
+        clearTimeout(fallbackTimeout);
+        setIsReconnecting(false);
+        socket.off('cleanupComplete', handleCleanupComplete);
+      };
+      
+      socket.on('cleanupComplete', handleCleanupComplete);
+      
+      // Rensa eventuell gammal state på servern
+      console.log('Sending cleanup request to server');
+      socket.emit('clientReconnected', { username });
+      
+    } else {
+      setIsReconnecting(false);
+    }
+  }, [hasJoined, username]);
 
   const handleLogout = () => {
     const confirmed = window.confirm('Är du säker på att du vill logga ut? Detta kommer att avsluta ditt spel om det pågår.');
@@ -56,6 +87,20 @@ const Tabs = () => {
   const participantsMutation = useParticipantsMutation();
   const participantsLeaveMutation = useParticipantsLeaveMutation();
   const roomId = "room1";
+
+  // Visa loading medan vi validerar server-state
+  if (isReconnecting) {
+    return (
+      <div className="login-container">
+        <div className="login-welcome">
+          <div className="welcome-logo">
+            <Logo size="large" />
+          </div>
+          <p>Återansluter till servern...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Visa lobby/namninput om användaren inte har joinat än
   if (!hasJoined) {

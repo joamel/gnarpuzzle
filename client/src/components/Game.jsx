@@ -38,7 +38,7 @@ function Game({ roomCode, users, username }) {
 	const [leaderboard, setLeaderboard] = useState([]);
 	const [turn, setTurn] = useState([]);
 	const [allPlayerData, setAllPlayerData] = useState({});
-	const dim = 2;
+	const dim = 4;
 	const [board, setBoard] = useState(
 		[...Array(dim)].map((e) => Array(dim).fill(""))
 	);
