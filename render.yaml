@@ -1,0 +1,26 @@
+services:
+  # Backend Node.js service
+  - type: web
+    name: gnarp-backend
+    env: node
+    startCommand: node index.js
+    buildCommand: cd server && npm install
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        value: https://gnarp-frontend.onrender.com  # Uppdatera med riktig frontend URL
+    
+  # Frontend static site
+  - type: web  
+    name: gnarp-frontend
+    env: static
+    startCommand: npm run build && npm run preview
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://gnarp-backend.onrender.com
+      - key: VITE_SOCKET_URL
+        value: https://gnarp-backend.onrender.com

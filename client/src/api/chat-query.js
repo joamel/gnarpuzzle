@@ -3,7 +3,7 @@ import socket from "../utils/socket";
 import { useState } from "react";
 
 export const queryKey = ["chat"];
-const path = "http://localhost:3001/chat/"
+const path = `${import.meta.env.VITE_API_URL}/chat/`
 
 export const useChatQuery = (roomId) => {
 	return useQuery({

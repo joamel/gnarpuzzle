@@ -1,4 +1,6 @@
 import io from "socket.io-client";
-const socket = io.connect("http://localhost:3001");
-// const socket = io.connect("https://gnarpuzzle.adaptable.app");
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
+const socket = io.connect(SOCKET_URL);
 export default socket;

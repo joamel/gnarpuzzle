@@ -20,7 +20,7 @@ export const useParticipantsMutation = () => {
 		},
 		mutationFn: async (body) => {
 			const { roomId } = body;
-			const path = `http://localhost:3001/participants/${roomId}`;
+			const path = `${import.meta.env.VITE_API_URL}/participants/${roomId}`;
 
           const response = await fetch(path, {
             method: "POST",

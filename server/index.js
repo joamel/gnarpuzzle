@@ -24,17 +24,21 @@ const {
 	handleClientReconnected
 } = require('./utils/socketHandlers');
 
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  credentials: true
+}));
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
 	cors: {
-		origin: "http://localhost:5173",
+		origin: process.env.CLIENT_URL || "http://localhost:5173",
 		methods: ["GET", "POST"],
+		credentials: true
 	},
 });
 

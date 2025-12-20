@@ -9,7 +9,7 @@ export const useParticipantsQuery = (options) => {
 			// Get participants for all rooms
 			const rooms = ['room1', 'room2', 'room3', 'room4'];
 			const promises = rooms.map(roomId => 
-				fetch(`http://localhost:3001/participants/${roomId}`)
+				fetch(`${import.meta.env.VITE_API_URL}/participants/${roomId}`)
 					.then(response => response.ok ? response.json() : Promise.reject(`Request failed for ${roomId}`))
 			);
 			

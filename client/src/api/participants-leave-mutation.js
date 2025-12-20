@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "./query-client";
 import { queryKey } from "./participants-query";
 
-const path = "http://localhost:3001/participants"
+const path = `${import.meta.env.VITE_API_URL}/participants`
 
 export const useParticipantsLeaveMutation = () => {
 	return useMutation({

@@ -3,7 +3,7 @@ import { queryClient } from "./query-client";
 import { queryKey } from "./chat-query";
 import socket from "../utils/socket";
 
-const path = "http://localhost:3001/chat"
+const path = `${import.meta.env.VITE_API_URL}/chat`
 
 export const useChatMutation = () => {
 	// const queryKey = ['chatMessage']; // Replace with the actual query key used for fetching chat messages
