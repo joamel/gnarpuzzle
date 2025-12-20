@@ -1,11 +1,45 @@
 .game-container {
     text-align: center;
-    padding: 2rem;
-    min-height: 100vh;
+    padding: 0.5rem;
     background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
     background-attachment: fixed;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+/* When game is in Room layout (with chat) */
+.game-container.with-chat {
+    min-height: 0;
+    flex: 1;
+    height: auto;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    .game-container {
+        padding: 0.25rem;
+        background-attachment: local; /* Better performance on mobile */
+        min-height: 0;
+    }
+    
+    /* On mobile, game takes most space, chat is below */
+    .game-container.with-chat {
+        height: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-container {
+        padding: 0.1rem;
+    }
+    
+    .game-container.with-chat {
+        padding: 0.1rem;
+    }
 }
 
 .game-container.game-with-results {
@@ -16,13 +50,15 @@
 }
 
 .game-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.game-container.game-with-results .game-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  gap: 5rem;
+}.game-container.game-with-results .game-content {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -31,21 +67,75 @@
 
 .game-info {
     margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.game-info-compact {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.25rem;
+    padding: 0.3rem 0.8rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .game-info {
+        margin-bottom: 0.5rem;
+        padding: 0 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .game-info p {
+        margin: 0.25rem 0;
+    }
+    
+    .game-info-compact {
+        gap: 1rem;
+        margin-bottom: 0.3rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
 }
 
 .done-button {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
+    margin-top: 0.3rem;
+    padding: 0.6rem 1.2rem;
     background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    min-height: 44px; /* Touch-friendly minimum size */
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .done-button {
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        margin-top: 1.5rem;
+        width: 80%;
+        max-width: 300px;
+    }
 }
 
 .done-button:hover {
     background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.done-button:active {
+    transform: translateY(0);
 }
 
 .letter-input-container {
@@ -76,19 +166,125 @@
 }
 
 .current-letter-display {
-  margin-top: 1rem;
-  font-size: 1.2rem;
+  margin: 0;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .current-letter-display {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.3rem;
+    margin: 0;
+  }
+  
+  .game-info-compact {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    margin-bottom: 0.1rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .current-letter-display {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.3rem;
+    margin: 0.1rem 0;
+    text-align: center;
+  }
+  
+  .game-info-compact {
+    gap: 0.3rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.7rem;
+    margin-bottom: 0.1rem;
+  }
+  
+  .game-info-compact span {
+    margin: 0;
+  }
+}
+
+/* Touch improvements */
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+button, .board-cell, .alphabet-letter {
+  touch-action: manipulation; /* Prevents zoom on double-tap */
+}
+
+/* Prevent text selection on game elements */
+.board-container, .alphabet-container, .game-info {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Improve scrolling for mobile */
+.game-container {
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 768px) {
+  /* Ensure content is compact and doesn't force full height */
+  .game-content {
+    min-height: auto;
+    justify-content: flex-start;
+    gap: 0.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stack elements more efficiently on small screens */
+  .game-content {
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+  
+  /* Make sure game info is readable */
+  .game-info {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .alphabet-container {
-  margin-top: 1rem;
+  margin-top: 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  padding: 0 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .alphabet-container {
+    gap: 0.25rem;
+    padding: 0 0.25rem;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .alphabet-container {
+    gap: 0.2rem;
+    padding: 0 0.1rem;
+    margin-top: 0;
+  }
 }
 
 .alphabet-letter {
@@ -112,6 +308,38 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
     0 4px 15px rgba(245, 124, 0, 0.4);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  min-height: 48px; /* Touch-friendly minimum size */
+  min-width: 48px;
+}
+
+@media (max-width: 768px) {
+  .alphabet-letter {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.3rem;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .alphabet-letter {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.1rem;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 360px) {
+  .alphabet-letter {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+    min-width: 40px;
+    min-height: 40px;
+    gap: 0.2rem;
+  }
 }
 
 .alphabet-letter:hover {
@@ -120,4 +348,15 @@
   box-shadow: 
     0 6px 20px rgba(255, 193, 7, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+@media (hover: none) {
+  .alphabet-letter:hover {
+    transform: none;
+  }
+}
+
+.alphabet-letter:active {
+  transform: scale(0.95);
+  background: linear-gradient(145deg, #ffcc02, #ff8f00);
 }

@@ -72,7 +72,19 @@ const Room = (props) => {
       username,
       player: index + 1
     })) : [];
-    return <Game roomCode={roomId} users={gameUsers} username={username} />;
+    
+    return (
+      <div className="room-container">
+        <div className="game-section">
+          <Game roomCode={roomId} users={gameUsers} username={username} />
+        </div>
+        {showChat && (
+          <div className="chat-section">
+            <Chat username={username} roomId={roomId} />
+          </div>
+        )}
+      </div>
+    );
   }
 
   const isLoading = !Array.isArray(users);
@@ -140,7 +152,11 @@ const Room = (props) => {
           </div>
         )}
       </div>
-      {showChat && <Chat username={username} roomId={roomId} />}
+      {showChat && (
+        <div className="chat-section">
+          <Chat username={username} roomId={roomId} />
+        </div>
+      )}
     </div>
   );
 };

@@ -3,6 +3,14 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  #root {
+    font-size: 14px; /* Slightly smaller base font on mobile */
+  }
 }
 
 .logo {
@@ -11,11 +19,36 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
+@media (max-width: 768px) {
+  .logo {
+    height: 4em;
+    padding: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    height: 3em;
+    padding: 0.5em;
+  }
+}
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .logo:hover {
+    filter: none;
+  }
+  .logo.react:hover {
+    filter: none;
+  }
 }
 
 @keyframes logo-spin {

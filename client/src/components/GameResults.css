@@ -5,6 +5,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 450px;
+  max-width: 95vw; /* Responsive width */
   max-height: 85vh;
   background: linear-gradient(145deg, #f8f9fa, #e9ecef);
   border-radius: 16px;
@@ -16,6 +17,26 @@
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+@media (max-width: 768px) {
+  .game-results-sidebar {
+    width: 90vw;
+    max-height: 90vh;
+    border-radius: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (max-width: 480px) {
+  .game-results-sidebar {
+    width: 95vw;
+    max-height: 95vh;
+    border-radius: 8px;
+  }
 }
 
 .results-header {
@@ -26,11 +47,36 @@
   position: relative;
 }
 
+@media (max-width: 768px) {
+  .results-header {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-header {
+    padding: 0.75rem;
+  }
+}
+
 .results-title {
   margin: 0;
   font-size: 1.4rem;
   font-weight: 700;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .results-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-title {
+    font-size: 1.1rem;
+  }
 }
 
 .walkover-badge {
@@ -45,13 +91,42 @@
   backdrop-filter: blur(10px);
 }
 
+@media (max-width: 768px) {
+  .walkover-badge {
+    top: 0.3rem;
+    right: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .walkover-badge {
+    position: static;
+    display: inline-block;
+    margin-top: 0.5rem;
+  }
+}
+
 .results-content {
   flex: 1;
-  padding: 2rem;
+  padding: 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .results-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-content {
+    padding: 0.75rem;
+  }
 }
 
 .personal-score {

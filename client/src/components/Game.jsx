@@ -298,12 +298,12 @@ function Game({ roomCode, users, username }) {
 	};
 
 	return (
-		<div className={`game-container ${gameOver ? 'game-with-results' : ''}`}>
+		<div className="game-container ${gameOver ? 'game-with-results' : ''}">
 			<div className="game-content">
-				<div className="game-info">
-					<p><strong>Deltagare: {users.length} spelare</strong></p>
-					<p><strong>Round: {round} / {totalRounds}</strong></p>
-					{!gameOver && <p>Current Turn: {typeof turn === 'number' ? `Player ${turn}` : turn}</p>}
+				<div className="game-info-compact">
+					<span><strong>{users.length} spelare</strong></span>
+					<span><strong>Round {round}/{totalRounds}</strong></span>
+					{!gameOver && <span><strong>Tur: {typeof turn === 'number' ? `Spelare ${turn}` : turn}</strong></span>}
 				</div>
 				
 				<Board board={board} boardDisabled={boardDisabled} playRound={playRound} />
