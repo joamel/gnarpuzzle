@@ -239,6 +239,43 @@
     color: #333;
 }
 
+/* Room sections styling */
+.room-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.room-section h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.custom-room-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.custom-room-button {
+    background: linear-gradient(45deg, #c41e3a, #228b22) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 215, 0, 0.5) !important;
+    font-size: 1rem !important;
+    padding: 1.2rem 2rem !important;
+    box-shadow: 0 6px 20px rgba(196, 30, 58, 0.3) !important;
+}
+
+.custom-room-button:hover {
+    background: linear-gradient(45deg, #228b22, #c41e3a) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(196, 30, 58, 0.4) !important;
+}
+
 /* Room component specific layout */
 .game-section .room-container {
   margin-right: -1rem; /* Extend Room to near chat sidebar */

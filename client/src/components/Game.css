@@ -1,12 +1,21 @@
 .game-container {
     text-align: center;
     padding: 0.5rem;
-    background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
+    /* Christmas theme background */
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(196, 30, 58, 0.05) 25%,
+        rgba(34, 139, 34, 0.05) 50%,
+        rgba(255, 215, 0, 0.1) 75%,
+        rgba(255, 255, 255, 0.1) 100%);
     background-attachment: fixed;
     display: flex;
     flex-direction: column;
     height: 100%;
     min-height: 0;
+    /* Mobile touch optimizations */
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
 }
 
 /* When game is in Room layout (with chat) */
@@ -22,6 +31,8 @@
         padding: 0.25rem;
         background-attachment: local; /* Better performance on mobile */
         min-height: 0;
+        /* Better mobile touch handling */
+        touch-action: manipulation;
     }
     
     /* On mobile, game takes most space, chat is below */
@@ -29,6 +40,16 @@
         height: auto;
         flex: 1 1 auto;
         min-height: 0;
+        padding: 0.2rem;
+    }
+    
+    /* Mobile-specific Christmas styling */
+    .game-info-compact {
+        gap: 0.5rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(255, 215, 0, 0.3);
     }
 }
 
@@ -57,7 +78,28 @@
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  gap: 5rem;
+  gap: 2rem; /* Reduced gap for better mobile layout */
+  /* Christmas styling */
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 1rem;
+  backdrop-filter: blur(5px);
+}
+
+/* Mobile game content adjustments */
+@media (max-width: 768px) {
+  .game-content {
+    gap: 1rem;
+    padding: 0.5rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-content {
+    gap: 0.75rem;
+    padding: 0.25rem;
+  }
 }.game-container.game-with-results .game-content {
     flex: 1;
     display: flex;

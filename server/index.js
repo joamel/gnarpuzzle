@@ -7,6 +7,7 @@ require("dotenv/config");
 // Route imports
 const chatRoutes = require('./routes/chat');
 const participantsRoutes = require('./routes/participants');
+const customRoomsRoutes = require('./routes/customRooms');
 
 // Socket handler imports
 const {
@@ -27,8 +28,26 @@ const {
 const port = process.env.PORT || 3001;
 
 const app = express();
+
+// Debug logging
+console.log('🔧 Environment Configuration:');
+console.log('PORT:', port);
+console.log('CLIENT_URL:', process.env.CLIENT_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
+// CORS configuration with multiple allowed origins
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173", // Development
+  "https://gnarp-frontend.onrender.com", // Production frontend
+  "https://gnarpuzzle.onrender.com", // Alternative production URL
+  "https://gnarpuzzle-vite.onrender.com" // Another possible URL
+].filter(Boolean); // Remove undefined values
+
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
@@ -36,7 +55,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
 	cors: {
-		origin: process.env.CLIENT_URL || "http://localhost:5173",
+		origin: allowedOrigins,
 		methods: ["GET", "POST"],
 		credentials: true
 	},
@@ -56,6 +75,7 @@ app.get("/", (req, res) => {
 // Mount route modules
 app.use('/chat', chatRoutes.router);
 app.use('/participants', participantsRoutes.router);
+app.use('/custom-rooms', customRoomsRoutes.router);
 
 let emitsReceived = 0;
 

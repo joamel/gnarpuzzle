@@ -26,6 +26,17 @@
 @media (max-width: 768px) {
   :root {
     background-attachment: local; /* Better performance on mobile */
+    font-size: 14px; /* Slightly smaller base font */
+  }
+  
+  body {
+    padding: 10px; /* Add padding for mobile */
+  }
+  
+  /* Optimize sparkles for mobile */
+  body::before {
+    background-size: 150px 75px; /* Smaller sparkles on mobile */
+    animation-duration: 4s; /* Slower animation to save battery */
   }
 }
 
@@ -97,6 +108,19 @@ button {
   cursor: pointer;
   transition: all 0.25s;
   box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+  /* Mobile touch optimizations */
+  min-height: 44px; /* Minimum touch target size */
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile-specific button styling */
+@media (max-width: 768px) {
+  button {
+    font-size: 1.1em; /* Larger text on mobile */
+    padding: 0.8em 1.4em; /* Larger touch area */
+    margin: 0.3em; /* More spacing between buttons */
+  }
 }
 button:hover {
   transform: translateY(-2px);
@@ -118,6 +142,19 @@ button:focus-visible {
   color: #2c3e50;
   box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
   border-radius: 15px;
+  /* Mobile responsiveness */
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Mobile container adjustments */
+@media (max-width: 768px) {
+  .container {
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+  }
 }
 
 /* Chat message styling */

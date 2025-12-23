@@ -3,10 +3,11 @@ import Game from './Game';
 import Chat from './Chat';
 import Logo from './Logo';
 import socket from '../utils/socket';
+import { API_BASE_URL } from '../config/api';
 import './Room.css';
 
 const Room = (props) => {
-  const { username, users: initialUsers, roomId = 'room1', showChat = true } = props;
+  const { username, users: initialUsers, roomId = 'room1', showChat = true, isCustomRoom = false, customRoomCode = '' } = props;
   const [gameStarted, setGameStarted] = useState(false);
   const [users, setUsers] = useState(initialUsers || []);
 
@@ -28,7 +29,7 @@ const Room = (props) => {
     socket.emit('joinRoom', { username, room: roomId });
 
     // Registrera deltagaren via API också
-    fetch(`http://localhost:3001/participants/${roomId}`, {
+    fetch(`${API_BASE_URL}/participants/${roomId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,12 +100,36 @@ const Room = (props) => {
             {roomId === 'room2' && '🌟 Rum 2'}
             {roomId === 'room3' && '🚀 Rum 3'}
             {roomId === 'room4' && '💎 Rum 4'}
+            {isCustomRoom && `🎄 Anpassat Rum: ${customRoomCode}`}
           </h1>
-          <p className="room-description">Välkommen till spelrummet! Vänta på att fler spelare ansluter sig.</p>
+          <p className="room-description">
+            {isCustomRoom 
+              ? `Välkommen till ditt anpassade spelrum! Dela rumskoden "${customRoomCode}" med vänner för att bjuda in dem.`
+              : 'Välkommen till spelrummet! Vänta på att fler spelare ansluter sig.'}
+          </p>
+          {isCustomRoom && (
+            <div className="custom-room-info">
+              <div className="room-code-display">
+                <strong>Rumskod: {customRoomCode}</strong>
+                <button 
+                  className="copy-code-btn"
+                  onClick={() => {
+                    navigator.clipboard.writeText(customRoomCode);
+                    alert('Rumskod kopierad!');
+                  }}
+                >
+                  📋 Kopiera
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="participants-section">
-          <h3 className="participants-title">👥 Deltagare ({isLoading ? '...' : users.length})</h3>
+          <h3 className="participants-title">
+            👥 Deltagare ({isLoading ? '...' : users.length})
+            {isCustomRoom && <span className="max-participants">/8</span>}
+          </h3>
           {isLoading ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
@@ -114,9 +139,19 @@ const Room = (props) => {
             <div className="participants-list">
               {users.map((user, index) => (
                 <div key={index} className={`participant-card ${user === username ? 'current-user' : ''}`}>
-                  <span className="participant-icon">👤</span>
-                  <span className="participant-name">{user}</span>
-                  {user === username && <span className="you-badge">Du</span>}
+                  <div className="participant-info">
+                    <span className="participant-icon">
+                      {user === username ? '👑' : '👤'}
+                    </span>
+                    <span className="participant-name">{user}</span>
+                    <div className="participant-badges">
+                      {user === username && <span className="you-badge">Du</span>}
+                      <span className="status-badge online">🟢 Online</span>
+                    </div>
+                  </div>
+                  <div className="participant-meta">
+                    <span className="player-number">Spelare {index + 1}</span>
+                  </div>
                 </div>
               ))}
               {users.length === 1 && (
