@@ -3,20 +3,18 @@ services:
   - type: web
     name: gnarp-backend
     env: node
-    startCommand: node index.js
+    startCommand: cd server && node index.js
     buildCommand: cd server && npm install
     healthCheckPath: /
     envVars:
       - key: PORT
         value: 10000
       - key: CLIENT_URL
-        value: https://gnarp-frontend.onrender.com  # Uppdatera med riktig frontend URL
+        value: https://gnarp-frontend.onrender.com
     
   # Frontend static site
-  - type: web  
+  - type: static
     name: gnarp-frontend
-    env: static
-    startCommand: npm run build && npm run preview
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: client/dist
     envVars:
