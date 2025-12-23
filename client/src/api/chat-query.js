@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import socket from "../utils/socket";
 import { useState } from "react";
+import { API_BASE_URL } from '../config/api';
 
 export const queryKey = ["chat"];
-const path = `${import.meta.env.VITE_API_URL}/chat/`
+const path = `${API_BASE_URL}/chat/`
 
 export const useChatQuery = (roomId) => {
 	return useQuery({

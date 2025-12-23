@@ -2,8 +2,9 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "./query-client";
 import { queryKey } from "./chat-query";
 import socket from "../utils/socket";
+import { API_BASE_URL } from '../config/api';
 
-const path = `${import.meta.env.VITE_API_URL}/chat`
+const path = `${API_BASE_URL}/chat`
 
 export const useChatMutation = () => {
 	// const queryKey = ['chatMessage']; // Replace with the actual query key used for fetching chat messages

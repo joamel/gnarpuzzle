@@ -1,13 +1,10 @@
 // API configuration that automatically detects environment
-const isDevelopment = import.meta.env.DEV;
 
 // Use localhost for development, production URL for deployed environment  
-const API_BASE_URL = isDevelopment 
+export const API_BASE_URL = import.meta.env.DEV 
   ? 'http://localhost:3001'
   : import.meta.env.VITE_API_URL || 'https://gnarp-backend.onrender.com';
 
-const SOCKET_URL = isDevelopment
+export const SOCKET_URL = import.meta.env.DEV
   ? 'http://localhost:3001' 
   : import.meta.env.VITE_SOCKET_URL || 'https://gnarp-backend.onrender.com';
-
-export { API_BASE_URL, SOCKET_URL };
