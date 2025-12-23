@@ -7,8 +7,18 @@ const Header = ({ username, onLogout, showRoomBackButton = false, onBackToRooms 
     
     return (
         <>
-            <header className="app-header">
+            <div className="snowflakes" aria-hidden="true">
+                <div className="snowflake">❅</div>
+                <div className="snowflake">❆</div>
+                <div className="snowflake">❅</div>
+                <div className="snowflake">❆</div>
+                <div className="snowflake">❅</div>
+                <div className="snowflake">❆</div>
+                <div className="snowflake">❅</div>
+            </div>
+            <header className="app-header christmas-header">
                 <div className="header-left">
+                    <span className="santa">🎅</span>
                     <Logo size="medium" showText={true} />
                 </div>
                 
