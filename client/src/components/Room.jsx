@@ -10,6 +10,8 @@ const Room = (props) => {
   const { username, users: initialUsers, roomId = 'room1', showChat = true, isCustomRoom = false, customRoomCode = '' } = props;
   const [gameStarted, setGameStarted] = useState(false);
   const [users, setUsers] = useState(initialUsers || []);
+  const [readyPlayers, setReadyPlayers] = useState(new Set());
+  const [isReady, setIsReady] = useState(false);
 
   const handleLogout = () => {
     const confirmed = window.confirm('Är du säker på att du vill logga ut? Detta kommer att avsluta ditt spel om det pågår.');
@@ -55,16 +57,48 @@ const Room = (props) => {
       setUsers(participantsList || []);
     };
 
+    const handlePlayerReady = (data) => {
+      console.log('Player ready:', data);
+      setReadyPlayers(prev => new Set([...prev, data.username]));
+    };
+
+    const handlePlayerNotReady = (data) => {
+      console.log('Player not ready:', data);
+      setReadyPlayers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(data.username);
+        return newSet;
+      });
+    };
+
     // Lyssna på gameStarted event från servern
     socket.on('gameStarted', handleGameStarted);
     // Lyssna på participants uppdateringar
     socket.on('participants', handleParticipants);
+    // Ready state events
+    socket.on('playerReady', handlePlayerReady);
+    socket.on('playerNotReady', handlePlayerNotReady);
     
     return () => {
       socket.off('gameStarted', handleGameStarted);
       socket.off('participants', handleParticipants);
+      socket.off('playerReady', handlePlayerReady);
+      socket.off('playerNotReady', handlePlayerNotReady);
     };
   }, [username]);
+
+  const toggleReady = () => {
+    const newReadyState = !isReady;
+    setIsReady(newReadyState);
+    
+    if (newReadyState) {
+      socket.emit('playerReady', { roomId, username });
+    } else {
+      socket.emit('playerNotReady', { roomId, username });
+    }
+  };
+
+  const allPlayersReady = users.length > 1 && users.every(user => readyPlayers.has(user));
 
 
   if (gameStarted) {
@@ -146,11 +180,10 @@ const Room = (props) => {
                     <span className="participant-name">{user}</span>
                     <div className="participant-badges">
                       {user === username && <span className="you-badge">Du</span>}
-                      <span className="status-badge online">🟢 Online</span>
+                      <span className={`status-badge ${readyPlayers.has(user) ? 'ready' : 'not-ready'}`}>
+                        {readyPlayers.has(user) ? '✅ Redo' : '⏳ Väntar'}
+                      </span>
                     </div>
-                  </div>
-                  <div className="participant-meta">
-                    <span className="player-number">Spelare {index + 1}</span>
                   </div>
                 </div>
               ))}
@@ -163,7 +196,24 @@ const Room = (props) => {
           )}
         </div>
         
-        {users.length > 1 && users[0] === username && (
+        {/* Ready section för alla spelare */}
+        {users.length > 1 && (
+          <div className="ready-section">
+            <button 
+              className={`ready-button ${isReady ? 'ready' : 'not-ready'}`}
+              onClick={toggleReady}
+            >
+              {isReady ? '✅ Du är redo!' : '⏳ Markera som redo'}
+            </button>
+            <p className="ready-status">
+              {readyPlayers.size}/{users.length} spelare redo
+              {allPlayersReady && ' - Alla redo! 🎉'}
+            </p>
+          </div>
+        )}
+        
+        {/* Start knapp (endast för första spelaren när alla är redo) */}
+        {users.length > 1 && users[0] === username && allPlayersReady && (
           <div className="game-start-section">
             <button 
               className="start-game-button"

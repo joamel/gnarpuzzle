@@ -238,6 +238,79 @@
   color: #228b22;
 }
 
+.status-badge.ready {
+  background: rgba(34, 139, 34, 0.2);
+  color: #228b22;
+}
+
+.status-badge.not-ready {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+/* Ready section styling */
+.ready-section {
+  margin-top: 1.5rem;
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.ready-button {
+  background: linear-gradient(45deg, #ffc107, #28a745);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+  min-height: 44px; /* Touch target */
+}
+
+.ready-button.ready {
+  background: linear-gradient(45deg, #28a745, #20c997);
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.ready-button.not-ready {
+  background: linear-gradient(45deg, #ffc107, #fd7e14);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.ready-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+}
+
+.ready-status {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Mobile ready section */
+@media (max-width: 768px) {
+  .ready-section {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .ready-button {
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+  }
+  
+  .ready-status {
+    font-size: 0.9rem;
+  }
+}
+
 .you-badge {
   background: linear-gradient(45deg, #c41e3a, #228b22);
   color: white;
@@ -256,10 +329,45 @@
   .participant-card {
     padding: 0.5rem 0.75rem;
     border-radius: 12px;
-    gap: 0.5rem;
-    max-width: 150px !important;
-    width: 150px !important;
+    gap: 0.3rem;
+    max-width: 180px !important;
+    width: 180px !important;
     margin: 0 auto;
+  }
+  
+  .participant-info {
+    gap: 0.5rem;
+  }
+  
+  .participant-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80px;
+  }
+  
+  .participant-badges {
+    gap: 0.3rem;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  
+  .participant-meta {
+    display: none; /* Dölj "Spelare X" på mobil */
+  }
+  
+  .status-badge {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 8px;
+  }
+  
+  .you-badge {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 8px;
   }
 }
 

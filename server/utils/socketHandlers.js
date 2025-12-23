@@ -28,6 +28,9 @@ const { getParticipantsStorage, isRoomEmpty } = require('../routes/participants'
 
 const botName = "Chat Bot";
 
+// Ready state storage per room
+const roomReadyStates = new Map(); // roomId -> Set of ready usernames
+
 const handleJoinRoom = (socket, io) => {
     socket.on("joinRoom", ({ username, room }) => {
         console.log(`${username} joined room ${room}`);
@@ -251,6 +254,7 @@ const handleLeaveRoom = (socket, io) => {
                 console.log(`Room ${room} is completely empty, clearing chat history`);
                 clearChat(room);
                 clearGameState(room);
+                clearRoomReadyState(room);
             }
         }
     });
@@ -525,6 +529,52 @@ const handleDisconnect = (socket, io) => {
     });
 };
 
+// Ready state handlers
+const handlePlayerReady = (socket, io) => {
+    socket.on('playerReady', ({ roomId, username }) => {
+        console.log(`Player ${username} is ready in room ${roomId}`);
+        
+        if (!roomReadyStates.has(roomId)) {
+            roomReadyStates.set(roomId, new Set());
+        }
+        
+        roomReadyStates.get(roomId).add(username);
+        
+        // Notify all players in room
+        io.to(roomId).emit('playerReady', { username });
+        
+        // Check if all players are ready
+        const participants = getParticipantsStorage()[roomId] || [];
+        const readyPlayers = roomReadyStates.get(roomId);
+        
+        if (participants.length > 1 && participants.every(player => readyPlayers.has(player))) {
+            console.log(`All players ready in room ${roomId}`);
+            io.to(roomId).emit('allPlayersReady');
+        }
+    });
+};
+
+const handlePlayerNotReady = (socket, io) => {
+    socket.on('playerNotReady', ({ roomId, username }) => {
+        console.log(`Player ${username} is not ready in room ${roomId}`);
+        
+        if (roomReadyStates.has(roomId)) {
+            roomReadyStates.get(roomId).delete(username);
+        }
+        
+        // Notify all players in room
+        io.to(roomId).emit('playerNotReady', { username });
+    });
+};
+
+// Clear ready state when room becomes empty
+const clearRoomReadyState = (roomId) => {
+    if (roomReadyStates.has(roomId)) {
+        roomReadyStates.delete(roomId);
+        console.log(`Cleared ready state for room ${roomId}`);
+    }
+};
+
 module.exports = {
     handleJoinRoom,
     handleSendMessage,
@@ -537,5 +587,8 @@ module.exports = {
     handleRequestResults,
     handleLeaveRoom,
     handleDisconnect,
-    handleClientReconnected
+    handleClientReconnected,
+    handlePlayerReady,
+    handlePlayerNotReady,
+    clearRoomReadyState
 };

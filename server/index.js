@@ -22,7 +22,9 @@ const {
 	handleRequestResults,
 	handleLeaveRoom,
 	handleDisconnect,
-	handleClientReconnected
+	handleClientReconnected,
+	handlePlayerReady,
+	handlePlayerNotReady
 } = require('./utils/socketHandlers');
 
 const port = process.env.PORT || 3001;
@@ -96,6 +98,8 @@ io.on("connection", (socket) => {
 	handleLeaveRoom(socket, io);
 	handleDisconnect(socket, io);
 	handleClientReconnected(socket, io);
+	handlePlayerReady(socket, io);
+	handlePlayerNotReady(socket, io);
 });
 
 server.listen(port, () => {
