@@ -4,6 +4,8 @@
   margin: 0;
   padding: 0;
   overflow-x: hidden; /* Prevent horizontal scrolling */
+  /* Christmas background enhancement */
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
 }
 
 /* Mobile-first responsive design */
@@ -35,10 +37,13 @@
 }
 
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  /* Christmas hover effect */
+  filter: drop-shadow(0 0 2em rgba(255, 215, 0, 0.8));
+  transform: scale(1.05);
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em rgba(196, 30, 58, 0.8));
+  transform: scale(1.05);
 }
 
 /* Disable hover effects on touch devices */
@@ -68,6 +73,19 @@
 
 .card {
   padding: 2em;
+  /* Christmas card styling */
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(196, 30, 58, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Add Christmas glow effects */
+.card:hover {
+  box-shadow: 0 12px 40px rgba(255, 215, 0, 0.3);
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
 }
 
 .read-the-docs {

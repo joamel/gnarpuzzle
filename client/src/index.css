@@ -5,7 +5,13 @@
 
   color-scheme: light;
   color: #2c3e50;
-  background: #667eea;
+  /* Christmas gradient background */
+  background: linear-gradient(135deg, 
+    #1e3c72 0%, 
+    #2a5298 25%, 
+    #c41e3a 50%, 
+    #228b22 75%, 
+    #ffd700 100%);
   background-attachment: fixed;
   min-height: 100vh;
 
@@ -40,8 +46,37 @@ body {
   padding: 0;
   overflow-x: hidden; /* Prevent horizontal scrolling */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  background: #667eea;
+  /* Christmas themed background with overlay */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   min-height: 100vh;
+  position: relative;
+}
+
+/* Christmas sparkles animation */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 215, 0, 0.8), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255, 215, 0, 0.8), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.8), transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: sparkles 3s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes sparkles {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100px); }
 }
 
 h1 {
@@ -56,12 +91,17 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  /* Christmas button styling */
+  background: linear-gradient(45deg, #c41e3a, #228b22);
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s;
+  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
 }
 button:hover {
-  border-color: #646cff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+  background: linear-gradient(45deg, #228b22, #c41e3a);
 }
 button:focus,
 button:focus-visible {
@@ -69,11 +109,19 @@ button:focus-visible {
 }
 
 .container {
-  border: 2px solid #dedede;
-  border-color: #ccc;
-  background-color: #ddd;
+  /* Christmas container styling */
+  border: 2px solid #ffd700;
+  border-color: #ffd700;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   text-align: left;
-  color: #333232;;
+  color: #2c3e50;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+  border-radius: 15px;
+}
+
+/* Chat message styling */
+.message {
   border-radius: 5px;
   padding: 10px;
   margin: 10px 0;
