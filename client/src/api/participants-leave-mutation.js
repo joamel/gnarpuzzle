@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "./query-client";
 import { queryKey } from "./participants-query";
+import { API_BASE_URL } from "../config/api";
 
-const path = `${import.meta.env.VITE_API_URL}/participants`
+const path = `${API_BASE_URL}/participants`
 
 export const useParticipantsLeaveMutation = () => {
 	return useMutation({

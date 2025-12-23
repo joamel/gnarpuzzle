@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "./query-client";
 import { queryKey } from "./participants-query";
+import { API_BASE_URL } from "../config/api";
 
 export const useParticipantsMutation = () => {
 	return useMutation({
@@ -20,7 +21,7 @@ export const useParticipantsMutation = () => {
 		},
 		mutationFn: async (body) => {
 			const { roomId } = body;
-			const path = `${import.meta.env.VITE_API_URL}/participants/${roomId}`;
+			const path = `${API_BASE_URL}/participants/${roomId}`;
 
           const response = await fetch(path, {
             method: "POST",
