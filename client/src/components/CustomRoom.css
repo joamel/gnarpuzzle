@@ -1,246 +1,201 @@
-/* Christmas-themed Custom Room Styling */
-.custom-room-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.custom-room-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  border: 2px solid rgba(255, 215, 0, 0.5);
-  box-shadow: 0 12px 40px rgba(196, 30, 58, 0.2);
-  padding: 2rem;
-  max-width: 500px;
-  width: 100%;
-  text-align: center;
-  /* Christmas glow effect */
-  position: relative;
-  overflow: hidden;
-}
-
-.custom-room-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
-  animation: christmas-glow 4s ease-in-out infinite alternate;
-  pointer-events: none;
-  z-index: -1;
-}
-
-@keyframes christmas-glow {
-  0% { transform: rotate(0deg) scale(0.8); }
-  100% { transform: rotate(180deg) scale(1.2); }
-}
-
-.custom-room-card h2 {
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  text-shadow: 0 2px 4px rgba(196, 30, 58, 0.2);
-}
-
-.room-options {
-  margin: 2rem 0;
-}
-
-.join-room-section, .create-room-section {
-  margin: 1.5rem 0;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 15px;
-  border: 1px solid rgba(255, 215, 0, 0.3);
-}
-
-.join-room-section h3, .create-room-section h3 {
-  color: #c41e3a;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-}
-
-.input-group {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-.room-input {
-  flex: 1;
-  padding: 0.8rem 1rem;
-  border: 2px solid rgba(255, 215, 0, 0.5);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #2c3e50;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  min-width: 200px;
-}
-
-.room-input:focus {
-  outline: none;
-  border-color: #c41e3a;
-  box-shadow: 0 0 10px rgba(196, 30, 58, 0.3);
-  transform: translateY(-2px);
-}
-
-.room-input::placeholder {
-  color: #7f8c8d;
-}
-
-.join-button, .create-button {
-  background: linear-gradient(45deg, #c41e3a, #228b22);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
-  min-height: 44px; /* Touch target size */
-}
-
-.join-button:hover, .create-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
-  background: linear-gradient(45deg, #228b22, #c41e3a);
-}
-
-.create-button {
-  width: 100%;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-}
-
-.create-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.divider {
-  margin: 2rem 0;
-  position: relative;
-  text-align: center;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 50%;
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
 }
 
-.divider span {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 0 1rem;
-  color: #7f8c8d;
-  font-style: italic;
+.modal-content {
+  background: linear-gradient(135deg, #8b1538 0%, #2c5aa0 100%);
+  border-radius: 20px;
+  padding: 0;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  color: white;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #ffd700;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.create-room-form {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-row label {
+  font-weight: 600;
+  color: #ffd700;
+  font-size: 0.9rem;
+}
+
+.form-row input,
+.form-row select {
+  padding: 0.8rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.form-row input:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.form-row input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-row select {
+  cursor: pointer;
+}
+
+.form-row select option {
+  background: #2c5aa0;
+  color: white;
 }
 
 .error-message {
-  color: #c41e3a;
+  color: #ff6b6b;
   font-size: 0.9rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(196, 30, 58, 0.1);
-  border-radius: 5px;
-  border: 1px solid rgba(196, 30, 58, 0.3);
-}
-
-.room-info {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: rgba(34, 139, 34, 0.1);
-  border-radius: 10px;
-  border: 1px solid rgba(34, 139, 34, 0.3);
-  text-align: left;
-}
-
-.room-info h4 {
-  color: #228b22;
-  margin-bottom: 1rem;
   text-align: center;
+  padding: 0.5rem;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
-.room-info ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 
-.room-info li {
-  padding: 0.3rem 0;
-  color: #2c3e50;
-  position: relative;
-  padding-left: 1.5rem;
+.cancel-button {
+  padding: 0.8rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-.room-info li::before {
-  content: '🎄';
-  position: absolute;
-  left: 0;
-  top: 0.3rem;
+.cancel-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .custom-room-container {
-    padding: 1rem;
-    min-height: 70vh;
-  }
+.create-button {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(45deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
 
-  .custom-room-card {
-    padding: 1.5rem;
-    border-radius: 15px;
-  }
+.create-button:hover:not(:disabled) {
+  background: linear-gradient(45deg, #20c997, #17a2b8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
 
-  .custom-room-card h2 {
-    font-size: 1.5rem;
-  }
-
-  .join-room-section, .create-room-section {
-    padding: 1rem;
-    margin: 1rem 0;
-  }
-
-  .input-group {
-    flex-direction: column;
-  }
-
-  .room-input {
-    min-width: 100%;
-    margin-bottom: 0.5rem;
-  }
-
-  .join-button {
-    width: 100%;
-  }
+.create-button:disabled {
+  background: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 @media (max-width: 480px) {
-  .custom-room-container {
-    padding: 0.5rem;
+  .modal-content {
+    max-width: 90vw;
+    margin: 1rem;
   }
-
-  .custom-room-card {
-    padding: 1rem;
+  
+  .modal-header {
+    padding: 1rem 1.5rem;
   }
-
-  .room-info {
-    padding: 1rem;
+  
+  .create-room-form {
+    padding: 1.5rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
   }
 }

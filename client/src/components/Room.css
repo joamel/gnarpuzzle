@@ -44,6 +44,18 @@
   line-height: 1.2;
 }
 
+.room-size-badge {
+  display: inline-block;
+  background: linear-gradient(45deg, #c41e3a, #228b22);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 10px rgba(196, 30, 58, 0.3);
+}
+
 @media (max-width: 768px) {
   .room-title {
     font-size: 2rem;
@@ -195,8 +207,8 @@
 
 .participant-card {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 1rem;
   padding: 1rem 1.5rem;
   background: rgba(255, 255, 255, 0.7);
   border-radius: 15px;
@@ -206,46 +218,33 @@
   max-width: 400px;
 }
 
+.participant-card.current-user {
+  background: linear-gradient(135deg, #8b1538 0%, #2c5aa0 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.participant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.participant-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.participant-name {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
 .participant-info {
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
-}
-
-.participant-badges {
-  display: flex;
-  gap: 0.5rem;
-  margin-left: auto;
-}
-
-.participant-meta {
-  display: flex;
-  justify-content: center;
-  font-size: 0.8rem;
-  color: #666;
-}
-
-.status-badge {
-  font-size: 0.7rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.status-badge.online {
-  background: rgba(34, 139, 34, 0.2);
-  color: #228b22;
-}
-
-.status-badge.ready {
-  background: rgba(34, 139, 34, 0.2);
-  color: #228b22;
-}
-
-.status-badge.not-ready {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
 }
 
 /* Ready section styling */
@@ -312,12 +311,12 @@
 }
 
 .you-badge {
-  background: linear-gradient(45deg, #c41e3a, #228b22);
-  color: white;
-  font-size: 0.7rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 10px;
-  font-weight: bold;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 .player-number {
@@ -329,45 +328,24 @@
   .participant-card {
     padding: 0.5rem 0.75rem;
     border-radius: 12px;
-    gap: 0.3rem;
-    max-width: 180px !important;
-    width: 180px !important;
+    gap: 0.5rem;
+    max-width: 150px !important;
+    width: 150px !important;
     margin: 0 auto;
   }
   
-  .participant-info {
-    gap: 0.5rem;
+  .participant-icon {
+    font-size: 1.3rem;
   }
   
   .participant-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 80px;
-  }
-  
-  .participant-badges {
-    gap: 0.3rem;
-    margin-left: auto;
-    flex-shrink: 0;
-  }
-  
-  .participant-meta {
-    display: none; /* Dölj "Spelare X" på mobil */
-  }
-  
-  .status-badge {
-    font-size: 0.6rem;
-    padding: 0.1rem 0.3rem;
-    border-radius: 8px;
+    font-size: 1rem;
   }
   
   .you-badge {
-    font-size: 0.6rem;
-    padding: 0.1rem 0.3rem;
-    border-radius: 8px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    border-radius: 10px;
   }
 }
 
@@ -380,70 +358,23 @@
     width: 130px !important;
     font-size: 0.85rem;
   }
-}
-
-.participant-card.current-user {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.participant-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
-}
-
-.participant-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-  .participant-icon {
-    font-size: 1.3rem;
-  }
-}
-
-@media (max-width: 480px) {
+  
   .participant-icon {
     font-size: 1.2rem;
   }
-}
-
-.participant-name {
-  flex: 1;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-@media (max-width: 768px) {
-  .participant-name {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
+  
   .participant-name {
     font-size: 0.9rem;
   }
-}
-
-.you-badge {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
+  
   .you-badge {
-    padding: 0.2rem 0.6rem;
-    font-size: 0.75rem;
-    border-radius: 10px;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.7rem;
+    border-radius: 8px;
   }
 }
+
+/* Sparkle animation and Christmas theme styles */
 
 @media (max-width: 480px) {
   .you-badge {

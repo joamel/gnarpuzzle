@@ -13,19 +13,31 @@ import GameResults from "./GameResults.jsx";
 function Game({ roomCode, users, username }) {
 	const user = users && users.filter((user) => user.username === username)[0];
 
+	// Get board size based on room
+	const getBoardSize = (roomCode) => {
+		const roomSizes = {
+			'room1': 4, // 4x4
+			'room2': 5, // 5x5  
+			'room3': 6, // 6x6
+			'room4': 4  // 4x4
+		};
+		// For custom rooms, default to 4x4
+		return roomSizes[roomCode] || 4;
+	};
+
+	const dim = getBoardSize(roomCode);
 
 	//initialize socket state
 	const [room, setRoom] = useState(roomCode);
-	// const [roomUsers, setRoomUsers] = useState(users);
 	const [currentUser, setCurrentUser] = useState(user);
 	
 	// Säkerställ att currentUser har rätt struktur
 	useEffect(() => {
 		if (user) {
 			setCurrentUser(user);
-
 		}
 	}, [user]);
+	
 	const [showChooseLetter, setShowChooseLetter] = useState(false);
 	const [showEndRound, setShowEndRound] = useState(false);
 	const [boardDisabled, setBoardDisabled] = useState(false);
@@ -38,7 +50,6 @@ function Game({ roomCode, users, username }) {
 	const [leaderboard, setLeaderboard] = useState([]);
 	const [turn, setTurn] = useState([]);
 	const [allPlayerData, setAllPlayerData] = useState({});
-	const dim = 4;
 	const [board, setBoard] = useState(
 		[...Array(dim)].map((e) => Array(dim).fill(""))
 	);

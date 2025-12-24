@@ -13,6 +13,19 @@ const Room = (props) => {
   const [readyPlayers, setReadyPlayers] = useState(new Set());
   const [isReady, setIsReady] = useState(false);
 
+  // Room configuration
+  const getRoomConfig = (roomId) => {
+    const configs = {
+      'room1': { name: '🏠 Rum 1', size: '4x4', description: 'Klassiskt 4x4 ordpussel - perfekt för nybörjare' },
+      'room2': { name: '🌟 Rum 2', size: '5x5', description: 'Utmanande 5x5 ordpussel - för erfarna spelare' },
+      'room3': { name: '🚀 Rum 3', size: '6x6', description: 'Avancerat 6x6 ordpussel - för ordpussel-mästare' },
+      'room4': { name: '💎 Rum 4', size: '4x4', description: 'Snabbt 4x4 ordpussel - för snabba matcher' }
+    };
+    return configs[roomId] || { name: roomId, size: '4x4', description: 'Ordpussel rum' };
+  };
+
+  const roomConfig = getRoomConfig(roomId);
+
   const handleLogout = () => {
     const confirmed = window.confirm('Är du säker på att du vill logga ut? Detta kommer att avsluta ditt spel om det pågår.');
     if (confirmed) {
@@ -130,16 +143,15 @@ const Room = (props) => {
         <div className="room-welcome">
           <Logo size="small" showText={false} />
           <h1 className="room-title">
-            {roomId === 'room1' && '🏠 Rum 1'}
-            {roomId === 'room2' && '🌟 Rum 2'}
-            {roomId === 'room3' && '🚀 Rum 3'}
-            {roomId === 'room4' && '💎 Rum 4'}
-            {isCustomRoom && `🎄 Anpassat Rum: ${customRoomCode}`}
+            {isCustomRoom ? `🎄 Anpassat Rum: ${customRoomCode}` : roomConfig.name}
           </h1>
+          <div className="room-size-badge">
+            {isCustomRoom ? '🎮 Anpassat format' : `📐 ${roomConfig.size} spelplan`}
+          </div>
           <p className="room-description">
             {isCustomRoom 
               ? `Välkommen till ditt anpassade spelrum! Dela rumskoden "${customRoomCode}" med vänner för att bjuda in dem.`
-              : 'Välkommen till spelrummet! Vänta på att fler spelare ansluter sig.'}
+              : roomConfig.description}
           </p>
           {isCustomRoom && (
             <div className="custom-room-info">
@@ -173,18 +185,9 @@ const Room = (props) => {
             <div className="participants-list">
               {users.map((user, index) => (
                 <div key={index} className={`participant-card ${user === username ? 'current-user' : ''}`}>
-                  <div className="participant-info">
-                    <span className="participant-icon">
-                      {user === username ? '👑' : '👤'}
-                    </span>
-                    <span className="participant-name">{user}</span>
-                    <div className="participant-badges">
-                      {user === username && <span className="you-badge">Du</span>}
-                      <span className={`status-badge ${readyPlayers.has(user) ? 'ready' : 'not-ready'}`}>
-                        {readyPlayers.has(user) ? '✅ Redo' : '⏳ Väntar'}
-                      </span>
-                    </div>
-                  </div>
+                  <span className="participant-icon">🎅</span>
+                  <span className="participant-name">{user}</span>
+                  {user === username && <span className="you-badge">Du</span>}
                 </div>
               ))}
               {users.length === 1 && (

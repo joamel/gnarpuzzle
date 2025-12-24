@@ -13,7 +13,6 @@ import Logo from './Logo';
 import Header from './Header';
 import CustomRoom from './CustomRoom';
 import socket from '../utils/socket';
-import { createCustomRoom, joinCustomRoom } from '../api/custom-rooms';
 
 const Tabs = () => {
   const [activeTab, setActiveTab] = useState(null);
@@ -21,7 +20,8 @@ const Tabs = () => {
   const [hasJoined, setHasJoined] = useState(() => localStorage.getItem('gnarp-hasJoined') === 'true');
   const [currentRoom, setCurrentRoom] = useState(null);
   const [isReconnecting, setIsReconnecting] = useState(true);
-  const [showCustomRooms, setShowCustomRooms] = useState(false);
+  const [customRooms, setCustomRooms] = useState([]);
+  const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
 
   // Validera server-state vid uppstart
   useEffect(() => {
@@ -47,7 +47,7 @@ const Tabs = () => {
       // Rensa eventuell gammal state på servern
       console.log('Sending cleanup request to server');
       socket.emit('clientReconnected', { username });
-      
+
     } else {
       setIsReconnecting(false);
     }
@@ -62,7 +62,7 @@ const Tabs = () => {
         console.log(`Room: ${currentRoom}, Username: ${username}`);
         socket.emit('leaveRoom', { room: currentRoom, username });
       }
-      
+
       // Rensa localStorage
       localStorage.removeItem('gnarp-hasJoined');
       localStorage.removeItem('gnarp-username');
@@ -78,7 +78,7 @@ const Tabs = () => {
       console.log(`=== SENDING LEAVE ROOM EVENT ===`);
       console.log(`Room: ${currentRoom}, Username: ${username}`);
       socket.emit('leaveRoom', { room: currentRoom, username });
-      
+
       // Lämna rummet via API
       participantsLeaveMutation.mutate({ roomId: currentRoom, username });
       // Återgå till rumslista
@@ -86,43 +86,21 @@ const Tabs = () => {
       setActiveTab(null);
     }
   };
+
+  const handleRoomCreated = (roomData) => {
+    setCustomRooms(prev => [...prev, roomData]);
+    setShowCreateRoomModal(false);
+  };
+
+  const handleJoinCustomRoom = (roomCode) => {
+    setCurrentRoom(roomCode);
+    participantsMutation.mutate({ roomId: roomCode, username });
+  };
+
   const { data: participants } = useParticipantsQuery('room1');
   const participantsMutation = useParticipantsMutation();
   const participantsLeaveMutation = useParticipantsLeaveMutation();
   const roomId = "room1";
-
-  // Handle custom room creation
-  const handleCreateCustomRoom = async (roomCode) => {
-    try {
-      const result = await createCustomRoom(roomCode, username);
-      console.log('Custom room created:', result);
-      
-      // Join the newly created room
-      await handleJoinCustomRoom(result.roomCode);
-    } catch (error) {
-      alert(error.message || 'Fel vid skapande av rum');
-      console.error('Error creating custom room:', error);
-    }
-  };
-
-  // Handle joining custom room
-  const handleJoinCustomRoom = async (roomCode) => {
-    try {
-      const result = await joinCustomRoom(roomCode, username);
-      console.log('Joined custom room:', result);
-      
-      setCurrentRoom(`custom-${result.roomCode}`);
-      setActiveTab(`custom-${result.roomCode}`);
-      setShowCustomRooms(false);
-      
-      // Register participant for the custom room
-      participantsMutation.mutate({ roomId: `custom-${result.roomCode}`, username });
-      
-    } catch (error) {
-      alert(error.message || 'Fel vid anslutning till rum');
-      console.error('Error joining custom room:', error);
-    }
-  };
 
   // Visa loading medan vi validerar server-state
   if (isReconnecting) {
@@ -193,8 +171,8 @@ const Tabs = () => {
     // Visa aktuellt rum med lämna-knapp
     return (
       <div className="room-layout">
-        <Header 
-          username={username} 
+        <Header
+          username={username}
           onLogout={handleLogout}
           showRoomBackButton={true}
           onBackToRooms={handleLeaveRoom}
@@ -204,41 +182,12 @@ const Tabs = () => {
             {currentRoom === "room1" && <Room username={username} users={participants?.["room1"] ?? []} roomId="room1" showChat={false} />}
             {currentRoom === "room2" && <Room username={username} users={participants?.["room2"] ?? []} roomId="room2" showChat={false} />}
             {currentRoom === "room3" && <Room username={username} users={participants?.["room3"] ?? []} roomId="room3" showChat={false} />}
-            {currentRoom === "room4" && <Room username={username} users={participants?.["room4"] ?? []} roomId="room4" showChat={false} />}
-            {currentRoom.startsWith("custom-") && (
-              <Room 
-                username={username} 
-                users={participants?.[currentRoom] ?? []} 
-                roomId={currentRoom} 
-                showChat={false} 
-                isCustomRoom={true}
-                customRoomCode={currentRoom.replace("custom-", "")}
-              />
-            )}
           </div>
           <div className="chat-sidebar">
             <Chat username={username} roomId={currentRoom} />
           </div>
         </div>
       </div>
-    );
-  }
-
-  // Visa custom room interface om den är vald
-  if (showCustomRooms) {
-    return (
-      <>
-        <Header 
-          username={username} 
-          onLogout={handleLogout} 
-          showRoomBackButton={true}
-          onBackToRooms={() => setShowCustomRooms(false)}
-        />
-        <CustomRoom 
-          onJoinCustomRoom={handleJoinCustomRoom}
-          onCreateCustomRoom={handleCreateCustomRoom}
-        />
-      </>
     );
   }
 
@@ -249,64 +198,68 @@ const Tabs = () => {
       <div className="room-selection">
         <h2>Välj rum att gå med i:</h2>
         
-        <div className="room-section">
-          <h3>🏠 Publika Rum</h3>
-          <div className="room-buttons">
-            <button className="room-button" 
-              onClick={() => {
-                console.log('Room1 button clicked', { roomId: 'room1', username });
-                setActiveTab("room1");
-                setCurrentRoom('room1');
-                participantsMutation.mutate({ roomId: 'room1', username });
-              }}
-            >
-              🏠 Rum 1
-            </button>
-            <button className="room-button" 
-              onClick={() => {
-                console.log('Room2 button clicked', { roomId: 'room2', username });
-                setActiveTab("room2");
-                setCurrentRoom('room2');
-                participantsMutation.mutate({ roomId: 'room2', username });
-              }}
-            >
-              🌟 Rum 2
-            </button>
-            <button className="room-button" 
-              onClick={() => {
-                console.log('Room3 button clicked', { roomId: 'room3', username });
-                setActiveTab("room3");
-                setCurrentRoom('room3');
-                participantsMutation.mutate({ roomId: 'room3', username });
-              }}
-            >
-              🚀 Rum 3
-            </button>
-            <button className="room-button" 
-              onClick={() => {
-                console.log('Room4 button clicked', { roomId: 'room4', username });
-                setActiveTab("room4");
-                setCurrentRoom('room4');
-                participantsMutation.mutate({ roomId: 'room4', username });
-              }}
-            >
-              💎 Rum 4
-            </button>
-          </div>
+        {/* Publika rum på samma rad */}
+        <div className="room-buttons">
+          <button className="room-button"
+            onClick={() => {
+              console.log('Room1 button clicked', { roomId: 'room1', username });
+              setActiveTab("room1");
+              setCurrentRoom('room1');
+              participantsMutation.mutate({ roomId: 'room1', username });
+            }}
+          >
+            🎄 Rum 1 (4x4)
+          </button>
+          <button className="room-button"
+            onClick={() => {
+              console.log('Room2 button clicked', { roomId: 'room2', username });
+              setActiveTab("room2");
+              setCurrentRoom('room2');
+              participantsMutation.mutate({ roomId: 'room2', username });
+            }}
+          >
+            🎅 Rum 2 (5x5)
+          </button>
+          <button className="room-button"
+            onClick={() => {
+              console.log('Room3 button clicked', { roomId: 'room3', username });
+              setActiveTab("room3");
+              setCurrentRoom('room3');
+              participantsMutation.mutate({ roomId: 'room3', username });
+            }}
+          >
+            🎁 Rum 3 (6x6)
+          </button>
         </div>
-
-        <div className="room-section">
-          <h3>🎄 Anpassade Rum</h3>
-          <div className="custom-room-buttons">
-            <button 
-              className="room-button custom-room-button" 
-              onClick={() => setShowCustomRooms(true)}
-            >
-              🏗️ Skapa eller Gå med i Anpassat Rum
-            </button>
-          </div>
+        
+        {/* Privata rum sektion */}
+        <div className="private-rooms-section">
+          <h3>🔒 Privata rum</h3>
+          <button className="create-room-button" onClick={() => setShowCreateRoomModal(true)}>
+            + Skapa nytt rum
+          </button>
+          
+          {customRooms.length > 0 && (
+            <div className="custom-rooms-list">
+              {customRooms.map((room) => (
+                <button
+                  key={room.code}
+                  className="custom-room-button"
+                  onClick={() => handleJoinCustomRoom(room.code)}
+                >
+                  🏠 {room.name} ({room.boardSize})
+                  <span className="room-code">#{room.code}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      
+      {/* Custom Room Modal */}
+      {showCreateRoomModal && (
+        <CustomRoom onRoomCreated={handleRoomCreated} onClose={() => setShowCreateRoomModal(false)} />
+      )}
     </>
   );
 }

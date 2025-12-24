@@ -1,82 +1,104 @@
 import React, { useState } from 'react';
 import './CustomRoom.css';
 
-function CustomRoom({ onJoinCustomRoom, onCreateCustomRoom }) {
-  const [roomCode, setRoomCode] = useState('');
+function CustomRoom({ onRoomCreated, onClose }) {
+  const [roomName, setRoomName] = useState('');
+  const [boardSize, setBoardSize] = useState('4x4');
+  const [description, setDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
 
-  const handleJoinRoom = (e) => {
+  const handleCreateRoom = async (e) => {
     e.preventDefault();
-    if (roomCode.trim().length < 3) {
-      setError('Rumskoden måste vara minst 3 tecken');
+    
+    if (roomName.trim().length < 3) {
+      setError('Rumnamnet måste vara minst 3 tecken');
       return;
     }
-    setError('');
-    onJoinCustomRoom(roomCode.trim().toUpperCase());
-  };
 
-  const handleCreateRoom = () => {
     setIsCreating(true);
-    // Generate a random 6-character room code
-    const generatedCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    onCreateCustomRoom(generatedCode);
+    setError('');
+
+    try {
+      // Generate a random 6-character room code
+      const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      const roomData = {
+        code: roomCode,
+        name: roomName.trim(),
+        boardSize,
+        description: description.trim() || `Ett ${boardSize} spelrum`
+      };
+
+      console.log('Creating room:', roomData);
+      onRoomCreated(roomData);
+    } catch (error) {
+      setError('Fel vid skapande av rum: ' + error.message);
+      setIsCreating(false);
+    }
   };
 
   return (
-    <div className="custom-room-container">
-      <div className="custom-room-card">
-        <h2>🎄 Anpassade Spelrum</h2>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2>🎄 Skapa nytt rum</h2>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
         
-        <div className="room-options">
-          <div className="join-room-section">
-            <h3>📝 Gå med i rum</h3>
-            <form onSubmit={handleJoinRoom}>
-              <div className="input-group">
-                <input
-                  type="text"
-                  placeholder="Ange rumskod (t.ex. ABC123)"
-                  value={roomCode}
-                  onChange={(e) => {
-                    setRoomCode(e.target.value);
-                    setError('');
-                  }}
-                  maxLength="10"
-                  className="room-input"
-                />
-                <button type="submit" className="join-button">
-                  Gå med
-                </button>
-              </div>
-              {error && <p className="error-message">{error}</p>}
-            </form>
+        <form onSubmit={handleCreateRoom} className="create-room-form">
+          <div className="form-row">
+            <label htmlFor="roomName">Rumnamn:</label>
+            <input
+              id="roomName"
+              type="text"
+              placeholder="T.ex. Familjerummet"
+              value={roomName}
+              onChange={(e) => {
+                setRoomName(e.target.value);
+                setError('');
+              }}
+              maxLength="20"
+              required
+            />
           </div>
 
-          <div className="divider">
-            <span>eller</span>
-          </div>
-
-          <div className="create-room-section">
-            <h3>🏠 Skapa nytt rum</h3>
-            <p>Skapa ett privat spelrum och få en unik rumskod att dela</p>
-            <button 
-              onClick={handleCreateRoom}
-              disabled={isCreating}
-              className="create-button"
+          <div className="form-row">
+            <label htmlFor="boardSize">Spelplan:</label>
+            <select
+              id="boardSize"
+              value={boardSize}
+              onChange={(e) => setBoardSize(e.target.value)}
             >
-              {isCreating ? 'Skapar rum...' : '🎮 Skapa rum'}
+              <option value="4x4">4x4 - Nybörjare</option>
+              <option value="5x5">5x5 - Medel</option>
+              <option value="6x6">6x6 - Expert</option>
+            </select>
+          </div>
+
+          <div className="form-row">
+            <label htmlFor="description">Beskrivning (valfritt):</label>
+            <input
+              id="description"
+              type="text"
+              placeholder="T.ex. För avancerade spelare"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength="50"
+            />
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="form-actions">
+            <button type="button" onClick={onClose} className="cancel-button">
+              Avbryt
+            </button>
+            <button type="submit" disabled={isCreating} className="create-button">
+              {isCreating ? 'Skapar...' : '🎮 Skapa rum'}
             </button>
           </div>
-        </div>
-
-        <div className="room-info">
-          <h4>💡 Tips</h4>
-          <ul>
-            <li>Rumskoder är inte skiftlägeskänsliga</li>
-            <li>Privata rum raderas när alla spelare lämnar</li>
-            <li>Dela rumskoden med vänner för att spela tillsammans</li>
-          </ul>
-        </div>
+        </form>
       </div>
     </div>
   );
