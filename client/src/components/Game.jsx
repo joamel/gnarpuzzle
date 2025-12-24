@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import socket from "../utils/socket";
 import Board from "./Board.jsx";
 import GameResults from "./GameResults.jsx";
+import Timer from "./Timer.jsx";
 // import { io } from "socket.io-client";
 // import { findWords } from "../utils/helper";
 // const socket = io.connect("http://localhost:3001");
 
-function Game({ roomCode, users, username }) {
+function Game({ roomCode, users, username, onGameEnd }) {
 	const user = users && users.filter((user) => user.username === username)[0];
 
 	// Get board size based on room
@@ -40,6 +41,13 @@ function Game({ roomCode, users, username }) {
 	
 	const [showChooseLetter, setShowChooseLetter] = useState(false);
 	const [showEndRound, setShowEndRound] = useState(false);
+	const [showPlacementTimer, setShowPlacementTimer] = useState(false);
+	const [placementTimerData, setPlacementTimerData] = useState({
+		timeLeft: 0,
+		currentPlayer: '',
+		isWarning: false,
+		showNumbers: false
+	});
 	const [boardDisabled, setBoardDisabled] = useState(false);
 
 	// initialize game state
@@ -55,6 +63,14 @@ function Game({ roomCode, users, username }) {
 	);
 	const [tempChoice, setTempChoice] = useState([null, null]);
 	const [currentLetter, setCurrentLetter] = useState("");
+
+	// Timer state
+	const [timerData, setTimerData] = useState({
+		timeLeft: 0,
+		currentPlayer: '',
+		isWarning: false,
+		showNumbers: false
+	});
 
 	const totalRounds = dim*dim;
 
@@ -81,7 +97,8 @@ function Game({ roomCode, users, username }) {
 				turn: randomStartPlayer,
 				currentLetter: "",
 				turnOrder: turnOrder,
-				currentTurnIndex: randomStartPlayerIndex
+				currentTurnIndex: randomStartPlayerIndex,
+				boardSize: dim // Send board size to server
 			});
 		}
 	}, []);
@@ -108,6 +125,14 @@ function Game({ roomCode, users, username }) {
 			setRound(round);
 			setTurn(turn);
 			setCurrentLetter(currentLetter);
+
+			// Uppdatera timer-data när spelet initieras
+			setTimerData({
+				timeLeft: 2,
+				currentPlayer: turn,
+				isWarning: false,
+				showNumbers: false
+			});
 			
 			console.log(`initGameState: turn=${turn} (type: ${typeof turn}), username=${username}, currentUser.player=${currentUser?.player}`);
 			
@@ -157,6 +182,15 @@ function Game({ roomCode, users, username }) {
 			setGameOver(newGameState.gameOver);
 			if (newGameState.words) setWords(newGameState.words);
 			if (newGameState.points) setPoints(newGameState.points);
+
+			// Uppdatera timer-data för nästa tur
+			setTimerData({
+				timeLeft: 15,
+				currentPlayer: newGameState.turn,
+				phase: 'letterSelection',
+				isWarning: false,
+				showNumbers: false
+			});
 			
 			console.log(`nextRound: turn=${newGameState.turn} (type: ${typeof newGameState.turn}), username=${username}, currentUser.player=${currentUser?.player}`);
 			
@@ -173,8 +207,15 @@ function Game({ roomCode, users, username }) {
 				setBoardDisabled(true); // Andra spelare väntar på bokstav
 			}
 			
-			// Rensa Done-knappen för alla
+			// Rensa Done-knappen och placement timer för alla
 			setShowEndRound(false);
+			setShowPlacementTimer(false);
+			setPlacementTimerData({
+				timeLeft: 0,
+				currentPlayer: '',
+				isWarning: false,
+				showNumbers: false
+			});
 		});
 
 		// Listen for personal game results
@@ -209,6 +250,14 @@ function Game({ roomCode, users, username }) {
 			setCurrentLetter(data.currentLetter);
 			setGameOver(data.gameOver);
 			
+			// Uppdatera timer-data när tur forceras (när spelare lämnar)
+			setTimerData({
+				timeLeft: 2,
+				currentPlayer: data.turn,
+				isWarning: false,
+				showNumbers: false
+			});
+			
 			// Om det är min tur, aktivera bokstavsval
 			if (data.turn === username && !data.gameOver) {
 				console.log(`${username} is now on turn, showing letter chooser`);
@@ -216,6 +265,71 @@ function Game({ roomCode, users, username }) {
 			} else {
 				console.log(`${username} is NOT on turn (turn is: ${data.turn})`);
 				setShowChooseLetter(false);
+			}
+		});
+
+		// Lyssna på timer-uppdateringar för bokstavsval
+		socket.on('turnTimer', (data) => {
+			console.log('Turn timer update:', data);
+			// Bara uppdatera timer under letter selection (inte under placement)
+			if (!showPlacementTimer) {
+				setTimerData({
+					timeLeft: data.timeLeft,
+					currentPlayer: data.currentPlayer,
+					isWarning: data.isWarning,
+					showNumbers: data.showNumbers
+				});
+			}
+		});
+
+		// Lyssna på placement timer-uppdateringar (individuella)
+		socket.on('placementTimer', (data) => {
+			console.log('Placement timer update:', data);
+			// Bara uppdatera timern om vi faktiskt får timer-data
+			if (data.timeLeft !== undefined && data.timeLeft > 0) {
+				setShowPlacementTimer(true);
+				setPlacementTimerData({
+					timeLeft: data.timeLeft,
+					currentPlayer: data.player || username,
+					isWarning: data.isWarning,
+					showNumbers: data.showNumbers
+				});
+			} else if (data.timeLeft === 0) {
+				// Dölj timern när tiden är slut
+				console.log('⏰ Placement timer reached 0, hiding timer');
+				setShowPlacementTimer(false);
+				setPlacementTimerData({
+					timeLeft: 0,
+					currentPlayer: '',
+					isWarning: false,
+					showNumbers: false
+				});
+			}
+		});
+
+		// Lyssna på automatisk bokstavsplacering
+		socket.on('autoPlaceLetter', (data) => {
+			console.log('🤖 CLIENT: Auto-placing letter due to timeout:', data);
+			if (data.board && data.position && data.letter) {
+				// Update the board with auto-placed letter
+				console.log('📋 Current board before auto-place:', board);
+				setBoard([...data.board]); // Create new array to force re-render
+				setTempChoice([...data.position]); // Create new array
+				setCurrentLetter(data.letter);
+				setShowEndRound(true); // Show done button
+				setShowPlacementTimer(false); // Dölj placement timer när auto-placement sker
+				setPlacementTimerData({
+					timeLeft: 0,
+					currentPlayer: '',
+					isWarning: false,
+					showNumbers: false
+				});
+				setBoardDisabled(true); // Disable further interaction
+				console.log(`✅ Letter "${data.letter}" auto-placed at [${data.position[0]}, ${data.position[1]}]`);
+				console.log('📋 Board after auto-place:', data.board);
+				console.log('🤖 Auto-placement complete, server will handle playerDone');
+			} else {
+				console.log('❌ Invalid data received for auto-place:', data);
 			}
 		});
 
@@ -227,6 +341,9 @@ function Game({ roomCode, users, username }) {
 			socket.off('allPlayerResults');
 			socket.off('playerLeft');
 			socket.off('forceUpdateTurn');
+			socket.off('turnTimer');
+			socket.off('placementTimer');
+			socket.off('autoPlaceLetter');
 		};
 
 		// socket.on('message', message => {
@@ -262,18 +379,39 @@ function Game({ roomCode, users, username }) {
 	};
 
 	const endCurrentRound = () => {
+		console.log('=== END CURRENT ROUND ===');
+		console.log(`Round: ${round}, totalRounds: ${totalRounds}`);
+
 		setTempChoice([null, null]);
 		setShowEndRound(false);
+		setShowPlacementTimer(false); // Dölj placement timer när spelaren är klar
+		setPlacementTimerData({
+			timeLeft: 0,
+			currentPlayer: '',
+			isWarning: false,
+			showNumbers: false
+		});
 		setBoardDisabled(true);
 		
 		const newRound = round + 1;
+		const isGameOver = checkGameOver(newRound);
+		console.log(`Sending playerDone for round: ${newRound}, isGameOver: ${isGameOver}`);
 
 		socket.emit("playerDone", {
-			gameOver: checkGameOver(newRound),
+			gameOver: isGameOver, // Skicka rätt info men låt servern validera
 			board,
 			round: newRound,
-			// Låt servern bestämma nästa tur istället
 			currentLetter,
+		});
+	};
+
+	const stopPlayerTimer = () => {
+		// Clear timer display
+		setTimerData({
+			timeLeft: 0,
+			currentPlayer: '',
+			isWarning: false,
+			showNumbers: false
 		});
 	};
 
@@ -298,6 +436,16 @@ function Game({ roomCode, users, username }) {
 		board[i][j] = currentLetter;
 		setTempChoice([i, j]);
 		setBoard([...board]);
+
+		// Skicka uppdaterad board till servern så auto-placement kan se den
+		socket.emit("updatePlayerBoard", {
+			board: [...board], // Skicka kopia av boarden
+			username: username,
+			currentLetter: currentLetter
+		});
+
+		// Stop timer when letter is placed
+		stopPlayerTimer();
 		
 		// Låt spelaren fortsätta flytta bokstaven tills de trycker Done
 		// setBoardDisabled(true); // Ta bort denna rad
@@ -308,14 +456,40 @@ function Game({ roomCode, users, username }) {
 		setShowChooseLetter(false);
 	};
 
+	const closeResults = () => {
+		console.log('=== CLOSE RESULTS CLICKED ===');
+		console.log('onGameEnd prop exists:', typeof onGameEnd);
+		// Signalera till Room att spelet ska avslutas
+		if (onGameEnd) {
+			console.log('Calling onGameEnd...');
+			onGameEnd();
+		} else {
+			console.log('ERROR: onGameEnd prop not found!');
+		}
+	};
+
 	return (
-		<div className="game-container ${gameOver ? 'game-with-results' : ''}">
+		<div className={`game-container ${gameOver ? 'game-with-results' : ''}`}>
 			<div className="game-content">
 				<div className="game-info-compact">
 					<span><strong>{users.length} spelare</strong></span>
 					<span><strong>Round {round}/{totalRounds}</strong></span>
 					{!gameOver && <span><strong>Tur: {typeof turn === 'number' ? `Spelare ${turn}` : turn}</strong></span>}
 				</div>
+
+				{/* Timer enkelt placerad */}
+				{!gameOver && (
+					(timerData.timeLeft > 0 && !showPlacementTimer) || 
+					(showPlacementTimer && placementTimerData.timeLeft > 0)
+				) && (
+					<Timer
+						timeLeft={showPlacementTimer ? placementTimerData.timeLeft : timerData.timeLeft}
+						currentPlayer={showPlacementTimer ? placementTimerData.currentPlayer : timerData.currentPlayer}
+						isWarning={showPlacementTimer ? placementTimerData.isWarning : timerData.isWarning}
+						showNumbers={showPlacementTimer ? placementTimerData.showNumbers : timerData.showNumbers}
+						isMyTurn={(showPlacementTimer ? placementTimerData.currentPlayer : timerData.currentPlayer) === username}
+					/>
+				)}
 				
 				<Board board={board} boardDisabled={boardDisabled} playRound={playRound} />
 				
@@ -360,6 +534,7 @@ function Game({ roomCode, users, username }) {
 					username={username}
 					users={users}
 					allPlayerData={allPlayerData}
+					onClose={closeResults}
 				/>
 			)}
 		</div>

@@ -13,6 +13,7 @@ const {
     emitAllPlayerResults,
     emitGameOver,
     emitPlayerLeft,
+    emitForceUpdateTurn,
     emitNextRound
 } = require('./socketEmitters');
 const { 
@@ -21,7 +22,13 @@ const {
     updateGameState,
     updatePlayerData,
     removePlayerFromGame,
-    clearGameState
+    clearGameState,
+    startTurnTimer,
+    clearTurnTimer,
+    advanceToNextPlayer,
+    startPlacementTimers,
+    clearPlacementTimers,
+    clearPlayerPlacementTimer
 } = require('./gameState');
 const { getChatStorage, clearChat } = require('../routes/chat');
 const { getParticipantsStorage, isRoomEmpty } = require('../routes/participants');
@@ -95,12 +102,28 @@ const handleInitGameState = (socket, io) => {
                     playersReady: new Set(),
                     gameState: gameState, // Save complete gameState including turnOrder
                     playerBoards: {},
+                    playersGameOver: new Set(), // Initialize playersGameOver tracking
                     originalParticipants: roomUsers.map(u => u.username),
                     round: 1
                 });
             } else {
-                // If room already exists, update gameState
-                updateGameState(user.room, gameState);
+                // If room already exists, update gameState and reset game over tracking
+                // But preserve currentLetter if it exists
+                const existingCurrentLetter = gameStateStorage.gameState?.currentLetter;
+                const updatedGameState = { ...gameState };
+
+                // Keep existing currentLetter if we have one and incoming one is empty
+                if (existingCurrentLetter && !gameState.currentLetter) {
+                    updatedGameState.currentLetter = existingCurrentLetter;
+                    console.log(`🔄 Preserving existing currentLetter: "${existingCurrentLetter}"`);
+                }
+
+                updateGameState(user.room, updatedGameState);
+                const { getAllGameStates } = require('./gameState');
+                let roomGameStates = getAllGameStates();
+                if (roomGameStates[user.room]) {
+                    roomGameStates[user.room].playersGameOver = new Set(); // Reset for new game
+                }
             }
             
             const roomUsers = getRoomUsers(user.room);
@@ -109,6 +132,9 @@ const handleInitGameState = (socket, io) => {
             
             emitRoomUsers(io, user.room, roomUsers);
             io.to(user.room).emit("initGameState", gameState);
+
+            // Start timer for current player
+            startTurnTimer(user.room, io, gameState.turn);
         }
     });
 };
@@ -161,6 +187,9 @@ const handleLeaveRoom = (socket, io) => {
         // Check if there's an ongoing game
         if (gameStateData && gameStateData.gameState && !gameStateData.gameState.gameOver) {
             console.log(`Game in progress in ${room}, player ${username} leaving`);
+            
+            // Clear timer when player leaves
+            clearTurnTimer(room);
             
             const result = removePlayerFromGame(room, username);
             
@@ -228,6 +257,17 @@ const handleLeaveRoom = (socket, io) => {
                     turnOrder: gameStateData.gameState.turnOrder,
                     gameOver: false
                 });
+
+                // Send forceUpdateTurn with timer data
+                emitForceUpdateTurn(io, room, {
+                    turn: result.nextPlayer,
+                    round: gameStateData.gameState.round || 1,
+                    currentLetter: gameStateData.gameState.currentLetter || '',
+                    gameOver: false
+                });
+
+                // Start timer for next player
+                startTurnTimer(room, io, result.nextPlayer);
             } else {
                 // No players left, end game
                 updateGameState(room, { gameOver: true });
@@ -267,6 +307,9 @@ const handlePlayerDone = (socket, io) => {
         
         console.log(`Player ${user.username} is done in room ${user.room}`);
         
+        // Clear this player's placement timer
+        clearPlayerPlacementTimer(user.room, user.username);
+        
         // Access roomGameStates directly like in original code
         const { getAllGameStates } = require('./gameState');
         let roomGameStates = getAllGameStates();
@@ -278,6 +321,7 @@ const handlePlayerDone = (socket, io) => {
                 playersReady: new Set(),
                 gameState: null,
                 playerBoards: {},
+                playersGameOver: new Set(), // Initialize playersGameOver tracking
                 originalParticipants: roomUsers.map(u => u.username),
                 round: 1
             };
@@ -316,6 +360,10 @@ const handlePlayerDone = (socket, io) => {
         
         // If all players ready, proceed to next round
         if (readyCount === roomUsers.length) {
+            console.log('🧹 All players are ready - clearing all placement timers');
+            // Clear all placement timers when everyone is done
+            clearPlacementTimers(user.room);
+            
             // Ensure we have a gameState object with correct turn
             if (!roomGameStates[user.room].gameState) {
                 const currentRoomUsers = getRoomUsers(user.room);
@@ -436,6 +484,9 @@ const handlePlayerDone = (socket, io) => {
                 
                 // Send updated game state to all players in room
                 io.to(user.room).emit("nextRound", updatedGameState);
+                
+                // Start timer for next player's turn
+                startTurnTimer(user.room, io, nextPlayer);
             }
         }
     });
@@ -457,7 +508,36 @@ const handleSendLetter = (socket, io) => {
     socket.on("sendLetter", (data) => {
         const user = getCurrentUser(socket.id);
         console.log('Send letter data:', data);
+        
+        // Clear turn timer when letter is selected
+        clearTurnTimer(user.room);
+        
+        // Update game state with current letter
+        updateGameState(user.room, { currentLetter: data.currentLetter });
+        
         io.to(user.room).emit("receiveLetter", data.currentLetter);
+        
+        // Start placement timers for all players
+        startPlacementTimers(user.room, io);
+    });
+};
+
+const handleUpdatePlayerBoard = (socket, io) => {
+    socket.on("updatePlayerBoard", (data) => {
+        const user = getCurrentUser(socket.id);
+        if (!user) return;
+
+        console.log(`📋 Updating board for ${user.username} in room ${user.room}`);
+        
+        // Store the updated board state
+        const gameStateData = getGameState(user.room);
+        if (gameStateData) {
+            if (!gameStateData.playerBoards) {
+                gameStateData.playerBoards = {};
+            }
+            gameStateData.playerBoards[user.username] = data.board;
+            console.log(`📋 Stored board for ${user.username}:`, data.board);
+        }
     });
 };
 
@@ -579,6 +659,7 @@ module.exports = {
     handleJoinRoom,
     handleSendMessage,
     handleSendLetter,
+    handleUpdatePlayerBoard,
     handlePlayerDone,
     handleRequestAllResults,
     handleStartGame,

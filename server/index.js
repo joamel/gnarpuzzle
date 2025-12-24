@@ -14,6 +14,7 @@ const {
 	handleJoinRoom,
 	handleSendMessage,
 	handleSendLetter,
+	handleUpdatePlayerBoard,
 	handlePlayerDone,
 	handleRequestAllResults,
 	handleStartGame,
@@ -89,6 +90,7 @@ io.on("connection", (socket) => {
 	handleJoinRoom(socket, io);
 	handleSendMessage(socket, io);
 	handleSendLetter(socket, io);
+	handleUpdatePlayerBoard(socket, io);
 	handlePlayerDone(socket, io);
 	handleRequestAllResults(socket, io);
 	handleStartGame(socket, io);

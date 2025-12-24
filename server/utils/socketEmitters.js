@@ -44,6 +44,10 @@ const emitPlayerLeft = (io, roomId, playerData) => {
     io.to(roomId).emit('playerLeft', playerData);
 };
 
+const emitForceUpdateTurn = (io, roomId, turnData) => {
+    io.to(roomId).emit('forceUpdateTurn', turnData);
+};
+
 const emitNextRound = (io, roomId, nextRoundData) => {
     io.to(roomId).emit('nextRound', nextRoundData);
 };
@@ -60,5 +64,6 @@ module.exports = {
     emitAllPlayerResults,
     emitGameOver,
     emitPlayerLeft,
+    emitForceUpdateTurn,
     emitNextRound
 };
