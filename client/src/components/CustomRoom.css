@@ -101,6 +101,14 @@
   backdrop-filter: blur(10px);
 }
 
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
 .form-row input:focus,
 .form-row select:focus {
   outline: none;

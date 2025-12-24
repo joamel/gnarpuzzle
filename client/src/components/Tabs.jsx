@@ -12,6 +12,7 @@ import Chat from './Chat';
 import Logo from './Logo';
 import Header from './Header';
 import CustomRoom from './CustomRoom';
+import JoinRoomModal from './JoinRoomModal';
 import socket from '../utils/socket';
 
 const Tabs = () => {
@@ -22,6 +23,47 @@ const Tabs = () => {
   const [isReconnecting, setIsReconnecting] = useState(true);
   const [customRooms, setCustomRooms] = useState([]);
   const [showCreateRoomModal, setShowCreateRoomModal] = useState(false);
+  const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
+  const [selectedRoomCode, setSelectedRoomCode] = useState('');
+  const [currentRoomInfo, setCurrentRoomInfo] = useState(null);
+
+  useEffect(() => {
+    if (hasJoined && username) {
+      console.log('=== VALIDATING SERVER STATE ON STARTUP ===');
+      
+      const handleRoomInfo = (data) => {
+        console.log('Received room info:', data);
+        setCurrentRoomInfo(data.roomInfo);
+      };
+
+      const handleNewCustomRoom = (roomInfo) => {
+        console.log('🎄 New custom room broadcasted:', roomInfo);
+        setCustomRooms(prev => {
+          // Check if room already exists to avoid duplicates
+          const exists = prev.some(room => room.code === roomInfo.code);
+          if (!exists) {
+            return [...prev, roomInfo];
+          }
+          return prev;
+        });
+      };
+
+      const handleExistingCustomRooms = (rooms) => {
+        console.log('🏠 Existing custom rooms received:', rooms);
+        setCustomRooms(rooms || []);
+      };
+
+      socket.on('room-info', handleRoomInfo);
+      socket.on('new-custom-room', handleNewCustomRoom);
+      socket.on('existing-custom-rooms', handleExistingCustomRooms);
+      
+      return () => {
+        socket.off('room-info', handleRoomInfo);
+        socket.off('new-custom-room', handleNewCustomRoom);
+        socket.off('existing-custom-rooms', handleExistingCustomRooms);
+      };
+    }
+  }, [hasJoined, username]);
 
   // Validera server-state vid uppstart
   useEffect(() => {
@@ -88,13 +130,39 @@ const Tabs = () => {
   };
 
   const handleRoomCreated = (roomData) => {
-    setCustomRooms(prev => [...prev, roomData]);
+    // Remove local addition since room will be broadcasted to all clients
+    // setCustomRooms(prev => [...prev, roomData]);
     setShowCreateRoomModal(false);
   };
 
-  const handleJoinCustomRoom = (roomCode) => {
+  const handleRoomJoined = (roomCode, username, roomInfo = null) => {
+    console.log(`Auto-joining room: ${roomCode} as ${username}`, roomInfo);
     setCurrentRoom(roomCode);
+    setCurrentRoomInfo(roomInfo);
+    
+    // Join via socket
+    socket.emit('joinRoom', {
+      username: username,
+      room: roomCode
+    });
+    
+    // If we don't have room info, request it
+    if (!roomInfo) {
+      socket.emit('get-room-info', roomCode);
+    }
+    
+    // Also register with the participants mutation for consistency
     participantsMutation.mutate({ roomId: roomCode, username });
+    
+    // Switch to game view
+    setActiveTab('Game');
+  };
+
+  const handleJoinCustomRoom = (roomCode) => {
+    // For now, assume password is required and show the modal
+    // In the future, we could check room info first
+    setSelectedRoomCode(roomCode);
+    setShowJoinRoomModal(true);
   };
 
   const { data: participants } = useParticipantsQuery('room1');
@@ -182,6 +250,15 @@ const Tabs = () => {
             {currentRoom === "room1" && <Room username={username} users={participants?.["room1"] ?? []} roomId="room1" showChat={false} />}
             {currentRoom === "room2" && <Room username={username} users={participants?.["room2"] ?? []} roomId="room2" showChat={false} />}
             {currentRoom === "room3" && <Room username={username} users={participants?.["room3"] ?? []} roomId="room3" showChat={false} />}
+            {currentRoom !== "room1" && currentRoom !== "room2" && currentRoom !== "room3" && (
+              <Room 
+                username={username} 
+                users={participants?.[currentRoom] ?? []} 
+                roomId={currentRoom} 
+                showChat={false}
+                roomInfo={currentRoomInfo}
+              />
+            )}
           </div>
           <div className="chat-sidebar">
             <Chat username={username} roomId={currentRoom} />
@@ -258,7 +335,20 @@ const Tabs = () => {
       
       {/* Custom Room Modal */}
       {showCreateRoomModal && (
-        <CustomRoom onRoomCreated={handleRoomCreated} onClose={() => setShowCreateRoomModal(false)} />
+        <CustomRoom 
+          onRoomCreated={handleRoomCreated} 
+          onRoomJoined={handleRoomJoined}
+          onClose={() => setShowCreateRoomModal(false)} 
+        />
+      )}
+      
+      {/* Join Room Modal */}
+      {showJoinRoomModal && (
+        <JoinRoomModal 
+          roomCode={selectedRoomCode}
+          onJoined={handleRoomJoined}
+          onClose={() => setShowJoinRoomModal(false)} 
+        />
       )}
     </>
   );

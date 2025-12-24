@@ -1,12 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import socket from '../utils/socket';
 import './CustomRoom.css';
 
-function CustomRoom({ onRoomCreated, onClose }) {
+function CustomRoom({ onRoomCreated, onClose, onRoomJoined }) {
   const [roomName, setRoomName] = useState('');
   const [boardSize, setBoardSize] = useState('4x4');
   const [description, setDescription] = useState('');
+  const [password, setPassword] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Listen for socket responses
+    const handleCustomRoomCreated = (data) => {
+      console.log('Custom room created:', data);
+      setIsCreating(false);
+      
+      // Auto-join the room with room info
+      if (data.roomCode && onRoomJoined) {
+        const username = localStorage.getItem('gnarp-username') || 'Anonym';
+        setTimeout(() => {
+          onRoomJoined(data.roomCode, username, data.roomInfo);
+        }, 500);
+      }
+      onClose();
+    };
+
+    const handleCustomRoomError = (error) => {
+      console.error('Custom room error:', error);
+      setError(error.message);
+      setIsCreating(false);
+    };
+
+    socket.on('custom-room-created', handleCustomRoomCreated);
+    socket.on('custom-room-error', handleCustomRoomError);
+
+    return () => {
+      socket.off('custom-room-created', handleCustomRoomCreated);
+      socket.off('custom-room-error', handleCustomRoomError);
+    };
+  }, [onRoomJoined, onClose]);
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
@@ -20,18 +53,23 @@ function CustomRoom({ onRoomCreated, onClose }) {
     setError('');
 
     try {
-      // Generate a random 6-character room code
-      const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-      
       const roomData = {
-        code: roomCode,
         name: roomName.trim(),
         boardSize,
-        description: description.trim() || `Ett ${boardSize} spelrum`
+        description: description.trim() || `Ett ${boardSize} spelrum`,
+        password: password.trim() || undefined,
+        isPasswordProtected: !!password.trim()
       };
 
-      console.log('Creating room:', roomData);
-      onRoomCreated(roomData);
+      console.log('🎄 EMITTING create-custom-room with data:', roomData);
+      console.log('🔌 Socket connected?', socket.connected);
+      console.log('🔌 Socket id:', socket.id);
+      
+      // Test socket connection first
+      socket.emit('test-event', { test: 'data' });
+      
+      socket.emit('create-custom-room', roomData);
+      
     } catch (error) {
       setError('Fel vid skapande av rum: ' + error.message);
       setIsCreating(false);
@@ -86,6 +124,19 @@ function CustomRoom({ onRoomCreated, onClose }) {
               onChange={(e) => setDescription(e.target.value)}
               maxLength="50"
             />
+          </div>
+
+          <div className="form-row">
+            <label htmlFor="password">Lösenord (valfritt):</label>
+            <input
+              id="password"
+              type="text"
+              placeholder="Lämna tomt för öppet rum"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              maxLength="20"
+            />
+            <small className="form-help">Ange lösenord för privat rum</small>
           </div>
 
           {error && <div className="error-message">{error}</div>}

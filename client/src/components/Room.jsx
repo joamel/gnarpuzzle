@@ -7,7 +7,7 @@ import { API_BASE_URL } from '../config/api';
 import './Room.css';
 
 const Room = (props) => {
-  const { username, users: initialUsers, roomId = 'room1', showChat = true, isCustomRoom = false, customRoomCode = '' } = props;
+  const { username, users: initialUsers, roomId = 'room1', showChat = true, isCustomRoom = false, customRoomCode = '', roomInfo } = props;
   const [gameStarted, setGameStarted] = useState(false);
   const [users, setUsers] = useState(initialUsers || []);
   const [readyPlayers, setReadyPlayers] = useState(new Set());
@@ -15,6 +15,16 @@ const Room = (props) => {
 
   // Room configuration
   const getRoomConfig = (roomId) => {
+    // Use roomInfo if available (for custom rooms)
+    if (roomInfo) {
+      return {
+        name: roomInfo.name || roomId,
+        size: roomInfo.boardSize || '4x4',
+        description: roomInfo.description || 'Anpassat ordpussel rum'
+      };
+    }
+    
+    // Fallback to default configs
     const configs = {
       'room1': { name: '🏠 Rum 1', size: '4x4', description: 'Klassiskt 4x4 ordpussel - perfekt för nybörjare' },
       'room2': { name: '🌟 Rum 2', size: '5x5', description: 'Utmanande 5x5 ordpussel - för erfarna spelare' },

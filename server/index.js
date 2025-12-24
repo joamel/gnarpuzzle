@@ -25,7 +25,8 @@ const {
 	handleDisconnect,
 	handleClientReconnected,
 	handlePlayerReady,
-	handlePlayerNotReady
+	handlePlayerNotReady,
+	handleCreateCustomRoom
 } = require('./utils/socketHandlers');
 
 const port = process.env.PORT || 3001;
@@ -102,6 +103,8 @@ io.on("connection", (socket) => {
 	handleClientReconnected(socket, io);
 	handlePlayerReady(socket, io);
 	handlePlayerNotReady(socket, io);
+	handleCreateCustomRoom(socket, io);
+	handleCreateCustomRoom(socket, io);
 });
 
 server.listen(port, () => {

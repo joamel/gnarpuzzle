@@ -655,6 +655,78 @@ const clearRoomReadyState = (roomId) => {
     }
 };
 
+// Handle custom room creation
+const handleCreateCustomRoom = (socket, io) => {
+    console.log('🎄 handleCreateCustomRoom registered for socket:', socket.id);
+    
+    // Send existing custom rooms to new client
+    const existingRooms = Object.values(global.customRooms || {});
+    console.log('🏠 Sending existing custom rooms to new client:', existingRooms.length, 'rooms');
+    socket.emit('existing-custom-rooms', existingRooms);
+    
+    socket.on('test-event', (data) => {
+        console.log('🧪 TEST EVENT RECEIVED:', data);
+        socket.emit('test-response', { message: 'Test successful!' });
+    });
+    
+    socket.on('get-room-info', (roomCode) => {
+        console.log('📋 GET ROOM INFO REQUEST for:', roomCode);
+        const roomInfo = global.customRooms?.[roomCode];
+        if (roomInfo) {
+            socket.emit('room-info', { roomCode, roomInfo });
+        } else {
+            socket.emit('room-info', { 
+                roomCode, 
+                roomInfo: { 
+                    name: `Rum ${roomCode}`, 
+                    description: 'Standard spelrum' 
+                } 
+            });
+        }
+    });
+    
+    socket.on('create-custom-room', (roomData) => {
+        console.log('🎄 CREATE CUSTOM ROOM EVENT RECEIVED:', roomData);
+        try {
+            const { name, boardSize, description, password } = roomData;
+            
+            // Generate unique room code
+            const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            // Store room info (you might want to use a more persistent storage in production)
+            const roomInfo = {
+                code: roomCode,
+                name: name,
+                description: description,
+                boardSize: boardSize,
+                password: password,
+                isPasswordProtected: !!password,
+                createdAt: new Date()
+            };
+            
+            // Store in global rooms object (add this if not exists)
+            global.customRooms = global.customRooms || {};
+            global.customRooms[roomCode] = roomInfo;
+            
+            console.log(`🏠 Custom room created: ${roomCode} - ${name}`);
+            
+            // Broadcast new room to all clients
+            io.emit('new-custom-room', roomInfo);
+            
+            socket.emit('custom-room-created', { 
+                roomCode,
+                roomInfo,
+                message: 'Rum skapat! Du joins automatiskt...',
+                autoJoin: true
+            });
+
+        } catch (error) {
+            console.error('Error creating custom room:', error);
+            socket.emit('custom-room-error', { message: 'Fel vid skapande av rum' });
+        }
+    });
+};
+
 module.exports = {
     handleJoinRoom,
     handleSendMessage,
@@ -671,5 +743,6 @@ module.exports = {
     handleClientReconnected,
     handlePlayerReady,
     handlePlayerNotReady,
+    handleCreateCustomRoom,
     clearRoomReadyState
 };
